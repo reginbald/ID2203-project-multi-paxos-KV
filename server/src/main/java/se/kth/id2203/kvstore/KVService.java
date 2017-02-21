@@ -34,7 +34,11 @@ import se.sics.kompics.ComponentDefinition;
 import se.sics.kompics.Positive;
 import se.sics.kompics.network.Network;
 
+import java.util.HashMap;
+
 public class KVService extends ComponentDefinition {
+    // Local data store
+    private HashMap<String, String> store = new HashMap<>();
 
     final static Logger LOG = LoggerFactory.getLogger(KVService.class);
     //******* Ports ******
@@ -47,9 +51,16 @@ public class KVService extends ComponentDefinition {
 
         @Override
         public void handle(Operation content, Message context) {
-            trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, "1")), net);
-            //LOG.info("Got operation {}! Now implement me please :)", content);
-            //trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_IMPLEMENTED)), net);
+            LOG.info("GET request - Key: {}!", content.key);
+
+            if (store.containsKey(content.key)){
+                String data = store.get(content.key);
+                LOG.info("Value: {}!", data);
+                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, data)), net);
+            } else {
+                LOG.info("Value not found");
+                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
+            }
         }
 
     };

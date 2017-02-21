@@ -63,7 +63,7 @@ public class Console implements Runnable {
     }
 
     {
-        commands.put("op", new Command() {
+        commands.put("get", new Command() {
 
             @Override
             public boolean execute(String[] cmdline, ClientService worker) {
@@ -86,14 +86,17 @@ public class Console implements Runnable {
 
             @Override
             public String usage() {
-                return "op <key>";
+                return "get <key>";
             }
 
             @Override
             public String help() {
-                return "Just a test operation...replace with proper put get";
+                return "Gets value for key";
             }
         });
+
+
+
         commands.put("help", new Command() {
 
             @Override
