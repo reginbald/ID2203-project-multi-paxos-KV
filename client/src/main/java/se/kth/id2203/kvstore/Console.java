@@ -152,12 +152,12 @@ public class Console implements Runnable {
 
             @Override
             public String usage() {
-                return "put <key> <value>";
+                return "cas <key> <reference value> <new value>";
             }
 
             @Override
             public String help() {
-                return "Puts value for key";
+                return "Compares value and swaps if the same";
             }
         });
 
