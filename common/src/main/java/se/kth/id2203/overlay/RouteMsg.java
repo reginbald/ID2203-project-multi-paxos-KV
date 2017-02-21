@@ -36,17 +36,35 @@ public class RouteMsg implements KompicsEvent, Serializable {
 
     public final KompicsEvent msg;
     public final String key;
+
+    //Put Value
     public final String value;
+
+    //CAS values
+    public final String referenceValue;
+    public final String newValue;
 
     public RouteMsg(String key, KompicsEvent msg) {
         this.key = key;
         this.value = "";
+        this.referenceValue = "";
+        this.newValue = "";
         this.msg = msg;
     }
 
     public RouteMsg(String key, String value, KompicsEvent msg) {
         this.key = key;
         this.value = value;
+        this.referenceValue = "";
+        this.newValue = "";
+        this.msg = msg;
+    }
+
+    public RouteMsg(String key, String referenceValue, String newValue, KompicsEvent msg) {
+        this.key = key;
+        this.value = "";
+        this.referenceValue = referenceValue;
+        this.newValue = newValue;
         this.msg = msg;
     }
 }

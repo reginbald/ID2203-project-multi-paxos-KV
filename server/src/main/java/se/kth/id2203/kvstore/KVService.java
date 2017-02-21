@@ -58,7 +58,7 @@ public class KVService extends ComponentDefinition {
                 LOG.info("Value: {}!", data);
                 trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, data)), net);
             } else {
-                LOG.info("Value not found");
+                LOG.info("Key not found");
                 trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
             }
         }
@@ -76,9 +76,33 @@ public class KVService extends ComponentDefinition {
 
     };
 
+    protected final ClassMatchedHandler<CasOperation, Message> casHandler = new ClassMatchedHandler<CasOperation, Message>() {
+
+        @Override
+        public void handle(CasOperation content, Message context) {
+            LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            if (store.containsKey(content.key)){
+                String data = store.get(content.key);
+                if (content.referenceValue.equals(data)){
+                    LOG.info("New Value set as: {}!", data);
+                    store.put(content.key, content.newValue);
+                    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.newValue)), net);
+                } else {
+                    LOG.info("Reference Value: {} does not mach Old Value: {}!", content.referenceValue, data);
+                    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NO_MATCH, data)), net);
+                }
+            } else {
+                LOG.info("Key not found");
+                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
+            }
+        }
+
+    };
+
     {
         subscribe(opHandler, net);
         subscribe(putHandler, net);
+        subscribe(casHandler, net);
     }
 
 }

@@ -122,6 +122,16 @@ public class ClientService extends ComponentDefinition {
         }
     };
 
+    protected final Handler<CasWithFuture> casHandler = new Handler<CasWithFuture>() {
+
+        @Override
+        public void handle(CasWithFuture event) {
+            RouteMsg rm = new RouteMsg(event.op.key, event.op.referenceValue, event.op.newValue, event.op); // don't know which partition is responsible, so ask the bootstrap server to forward it
+            trigger(new Message(self, server, rm), net);
+            pending.put(event.op.id, event.f);
+        }
+    };
+
     protected final ClassMatchedHandler<OpResponse, Message> responseHandler = new ClassMatchedHandler<OpResponse, Message>() {
         
         @Override
@@ -142,6 +152,7 @@ public class ClientService extends ComponentDefinition {
         subscribe(connectHandler, net);
         subscribe(opHandler, loopback);
         subscribe(putHandler, loopback);
+        subscribe(casHandler, loopback);
         subscribe(responseHandler, net);
 
     }
@@ -156,6 +167,13 @@ public class ClientService extends ComponentDefinition {
     Future<OpResponse> put(String key, String value) {
         PutOperation op = new PutOperation(key, value);
         PutWithFuture owf = new PutWithFuture(op);
+        trigger(owf, onSelf);
+        return owf.f;
+    }
+
+    Future<OpResponse> cas(String key, String referneceValue, String newValue) {
+        CasOperation op = new CasOperation(key, referneceValue, newValue);
+        CasWithFuture owf = new CasWithFuture(op);
         trigger(owf, onSelf);
         return owf.f;
     }
@@ -177,6 +195,17 @@ public class ClientService extends ComponentDefinition {
         public final SettableFuture<OpResponse> f;
 
         public PutWithFuture(PutOperation op) {
+            this.op = op;
+            this.f = SettableFuture.create();
+        }
+    }
+
+    public static class CasWithFuture implements KompicsEvent {
+
+        public final CasOperation op;
+        public final SettableFuture<OpResponse> f;
+
+        public CasWithFuture(CasOperation op) {
             this.op = op;
             this.f = SettableFuture.create();
         }

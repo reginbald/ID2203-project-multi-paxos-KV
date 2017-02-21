@@ -129,6 +129,38 @@ public class Console implements Runnable {
             }
         });
 
+        commands.put("cas", new Command() {
+
+            @Override
+            public boolean execute(String[] cmdline, ClientService worker) {
+                if (cmdline.length == 4) {
+                    Future<OpResponse> fr = worker.cas(cmdline[1], cmdline[2], cmdline[3]);
+                    out.println("Operation sent! Awaiting response...");
+                    try {
+                        OpResponse r = fr.get();
+                        out.println("Operation complete! Response was: " + r.toString());
+                        return true;
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace(out);
+                        return false;
+                    }
+
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public String usage() {
+                return "put <key> <value>";
+            }
+
+            @Override
+            public String help() {
+                return "Puts value for key";
+            }
+        });
+
         commands.put("help", new Command() {
 
             @Override
@@ -219,7 +251,7 @@ public class Console implements Runnable {
                 if (line.isEmpty()) {
                     continue;
                 }
-                String[] cmdline = line.split(" ", 3);
+                String[] cmdline = line.split(" ", 4);
                 String cmd = cmdline[0];
                 Command c = commands.get(cmd);
                 if (c == null) {
