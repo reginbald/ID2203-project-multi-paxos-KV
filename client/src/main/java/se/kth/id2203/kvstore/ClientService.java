@@ -102,10 +102,10 @@ public class ClientService extends ComponentDefinition {
             }
         }
     };
-    protected final Handler<OpWithFuture> opHandler = new Handler<OpWithFuture>() {
+    protected final Handler<GetWithFuture> getHandler = new Handler<GetWithFuture>() {
         
         @Override
-        public void handle(OpWithFuture event) {
+        public void handle(GetWithFuture event) {
             RouteMsg rm = new RouteMsg(event.op.key, event.op); // don't know which partition is responsible, so ask the bootstrap server to forward it
             trigger(new Message(self, server, rm), net);
             pending.put(event.op.id, event.f);
@@ -150,16 +150,16 @@ public class ClientService extends ComponentDefinition {
         subscribe(startHandler, control);
         subscribe(timeoutHandler, timer);
         subscribe(connectHandler, net);
-        subscribe(opHandler, loopback);
+        subscribe(getHandler, loopback);
         subscribe(putHandler, loopback);
         subscribe(casHandler, loopback);
         subscribe(responseHandler, net);
 
     }
     
-    Future<OpResponse> op(String key) {
-        Operation op = new Operation(key);
-        OpWithFuture owf = new OpWithFuture(op);
+    Future<OpResponse> get(String key) {
+        GetOperation op = new GetOperation(key);
+        GetWithFuture owf = new GetWithFuture(op);
         trigger(owf, onSelf);
         return owf.f;
     }
@@ -178,12 +178,12 @@ public class ClientService extends ComponentDefinition {
         return owf.f;
     }
     
-    public static class OpWithFuture implements KompicsEvent {
+    public static class GetWithFuture implements KompicsEvent {
 
-        public final Operation op;
+        public final GetOperation op;
         public final SettableFuture<OpResponse> f;
 
-        public OpWithFuture(Operation op) {
+        public GetWithFuture(GetOperation op) {
             this.op = op;
             this.f = SettableFuture.create();
         }

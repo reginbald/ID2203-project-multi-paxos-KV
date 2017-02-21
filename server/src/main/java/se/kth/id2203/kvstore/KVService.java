@@ -47,10 +47,10 @@ public class KVService extends ComponentDefinition {
     //******* Fields ******
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     //******* Handlers ******
-    protected final ClassMatchedHandler<Operation, Message> opHandler = new ClassMatchedHandler<Operation, Message>() {
+    protected final ClassMatchedHandler<GetOperation, Message> opHandler = new ClassMatchedHandler<GetOperation, Message>() {
 
         @Override
-        public void handle(Operation content, Message context) {
+        public void handle(GetOperation content, Message context) {
             LOG.info("GET request - Key: {}!", content.key);
 
             if (store.containsKey(content.key)){

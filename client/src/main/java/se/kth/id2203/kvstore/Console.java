@@ -45,10 +45,6 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import util.log4j.ColoredPatternLayout;
 
-/**
- *
- * @author Lars Kroll <lkroll@kth.se>
- */
 public class Console implements Runnable {
 
     private static final String PROMPT = ">";
@@ -70,7 +66,7 @@ public class Console implements Runnable {
             @Override
             public boolean execute(String[] cmdline, ClientService worker) {
                 if (cmdline.length == 2) {
-                    Future<OpResponse> fr = worker.op(cmdline[1]);
+                    Future<OpResponse> fr = worker.get(cmdline[1]);
                     out.println("GET sent! Awaiting response...");
                     try {
                         OpResponse r = fr.get();

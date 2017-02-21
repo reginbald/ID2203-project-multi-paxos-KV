@@ -28,14 +28,14 @@ import java.io.Serializable;
 import java.util.UUID;
 import se.sics.kompics.KompicsEvent;
 
-public class Operation implements KompicsEvent, Serializable {
+public class GetOperation implements KompicsEvent, Serializable {
 
     private static final long serialVersionUID = 2525600659083087179L;
 
     public final String key;
     public final UUID id;
 
-    public Operation(String key) {
+    public GetOperation(String key) {
         this.key = key;
         this.id = UUID.randomUUID();
     }
