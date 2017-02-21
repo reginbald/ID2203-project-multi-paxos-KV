@@ -71,10 +71,10 @@ public class Console implements Runnable {
             public boolean execute(String[] cmdline, ClientService worker) {
                 if (cmdline.length == 2) {
                     Future<OpResponse> fr = worker.op(cmdline[1]);
-                    out.println("Operation sent! Awaiting response...");
+                    out.println("GET sent! Awaiting response...");
                     try {
                         OpResponse r = fr.get();
-                        out.println("Operation complete! Response was: " + r.toString());
+                        out.println("GET complete! Response was: " + r.toString());
                         return true;
                     } catch (InterruptedException | ExecutionException ex) {
                         ex.printStackTrace(out);
@@ -103,10 +103,10 @@ public class Console implements Runnable {
             public boolean execute(String[] cmdline, ClientService worker) {
                 if (cmdline.length == 3) {
                     Future<OpResponse> fr = worker.put(cmdline[1], cmdline[2]);
-                    out.println("Operation sent! Awaiting response...");
+                    out.println("PUT sent! Awaiting response...");
                     try {
                         OpResponse r = fr.get();
-                        out.println("Operation complete! Response was: " + r.toString());
+                        out.println("PUT complete! Response was: " + r.toString());
                         return true;
                     } catch (InterruptedException | ExecutionException ex) {
                         ex.printStackTrace(out);
@@ -135,10 +135,10 @@ public class Console implements Runnable {
             public boolean execute(String[] cmdline, ClientService worker) {
                 if (cmdline.length == 4) {
                     Future<OpResponse> fr = worker.cas(cmdline[1], cmdline[2], cmdline[3]);
-                    out.println("Operation sent! Awaiting response...");
+                    out.println("CAS sent! Awaiting response...");
                     try {
                         OpResponse r = fr.get();
-                        out.println("Operation complete! Response was: " + r.toString());
+                        out.println("CAS complete! Response was: " + r.toString());
                         return true;
                     } catch (InterruptedException | ExecutionException ex) {
                         ex.printStackTrace(out);
