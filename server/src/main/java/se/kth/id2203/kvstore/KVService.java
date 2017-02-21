@@ -65,8 +65,20 @@ public class KVService extends ComponentDefinition {
 
     };
 
+    protected final ClassMatchedHandler<PutOperation, Message> putHandler = new ClassMatchedHandler<PutOperation, Message>() {
+
+        @Override
+        public void handle(PutOperation content, Message context) {
+            LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
+            store.put(content.key, content.value);
+            trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.value)), net);
+        }
+
+    };
+
     {
         subscribe(opHandler, net);
+        subscribe(putHandler, net);
     }
 
 }

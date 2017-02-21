@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -95,7 +97,37 @@ public class Console implements Runnable {
             }
         });
 
+        commands.put("put", new Command() {
 
+            @Override
+            public boolean execute(String[] cmdline, ClientService worker) {
+                if (cmdline.length == 3) {
+                    Future<OpResponse> fr = worker.put(cmdline[1], cmdline[2]);
+                    out.println("Operation sent! Awaiting response...");
+                    try {
+                        OpResponse r = fr.get();
+                        out.println("Operation complete! Response was: " + r.toString());
+                        return true;
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace(out);
+                        return false;
+                    }
+
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public String usage() {
+                return "put <key> <value>";
+            }
+
+            @Override
+            public String help() {
+                return "Puts value for key";
+            }
+        });
 
         commands.put("help", new Command() {
 
@@ -187,7 +219,7 @@ public class Console implements Runnable {
                 if (line.isEmpty()) {
                     continue;
                 }
-                String[] cmdline = line.split(" ", 2);
+                String[] cmdline = line.split(" ", 3);
                 String cmd = cmdline[0];
                 Command c = commands.get(cmd);
                 if (c == null) {

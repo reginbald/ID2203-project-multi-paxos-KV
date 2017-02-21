@@ -111,6 +111,17 @@ public class ClientService extends ComponentDefinition {
             pending.put(event.op.id, event.f);
         }
     };
+
+    protected final Handler<PutWithFuture> putHandler = new Handler<PutWithFuture>() {
+
+        @Override
+        public void handle(PutWithFuture event) {
+            RouteMsg rm = new RouteMsg(event.op.key, event.op.value, event.op); // don't know which partition is responsible, so ask the bootstrap server to forward it
+            trigger(new Message(self, server, rm), net);
+            pending.put(event.op.id, event.f);
+        }
+    };
+
     protected final ClassMatchedHandler<OpResponse, Message> responseHandler = new ClassMatchedHandler<OpResponse, Message>() {
         
         @Override
@@ -130,7 +141,9 @@ public class ClientService extends ComponentDefinition {
         subscribe(timeoutHandler, timer);
         subscribe(connectHandler, net);
         subscribe(opHandler, loopback);
+        subscribe(putHandler, loopback);
         subscribe(responseHandler, net);
+
     }
     
     Future<OpResponse> op(String key) {
@@ -139,13 +152,31 @@ public class ClientService extends ComponentDefinition {
         trigger(owf, onSelf);
         return owf.f;
     }
+
+    Future<OpResponse> put(String key, String value) {
+        PutOperation op = new PutOperation(key, value);
+        PutWithFuture owf = new PutWithFuture(op);
+        trigger(owf, onSelf);
+        return owf.f;
+    }
     
     public static class OpWithFuture implements KompicsEvent {
-        
+
         public final Operation op;
         public final SettableFuture<OpResponse> f;
-        
+
         public OpWithFuture(Operation op) {
+            this.op = op;
+            this.f = SettableFuture.create();
+        }
+    }
+
+    public static class PutWithFuture implements KompicsEvent {
+
+        public final PutOperation op;
+        public final SettableFuture<OpResponse> f;
+
+        public PutWithFuture(PutOperation op) {
             this.op = op;
             this.f = SettableFuture.create();
         }
