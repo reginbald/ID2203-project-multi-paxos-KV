@@ -30,10 +30,7 @@ import java.util.Collection;
 import se.kth.id2203.bootstrapping.NodeAssignment;
 import se.kth.id2203.networking.NetAddress;
 
-/**
- *
- * @author Lars Kroll <lkroll@kth.se>
- */
+
 public class LookupTable implements NodeAssignment {
 
     private static final long serialVersionUID = -8766981433378303267L;
