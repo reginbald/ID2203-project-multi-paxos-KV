@@ -26,10 +26,6 @@ package se.kth.id2203.overlay;
 import java.io.Serializable;
 import se.sics.kompics.KompicsEvent;
 
-/**
- *
- * @author Lars Kroll <lkroll@kth.se>
- */
 public class RouteMsg implements KompicsEvent, Serializable {
 
     private static final long serialVersionUID = -5481045153332189199L;
