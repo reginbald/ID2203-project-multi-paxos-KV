@@ -24,9 +24,6 @@ public class EPFD extends ComponentDefinition {
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
     private Set<NetAddress> topology;
     private long delta = config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
-    // final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
-    //val topology = cfg.getValue[List[Address]]("epfd.simulation.topology");
-    //val delta = cfg.getValue[Long]("epfd.simulation.delay");
 
     //mutable state
     private long period;
@@ -34,24 +31,6 @@ public class EPFD extends ComponentDefinition {
     private Set<NetAddress> suspected;
     private int seqnum = 0;
 
-    /*var period = cfg.getValue[Long]("epfd.simulation.delay");
-    var alive = Set(cfg.getValue[List[Address]]("epfd.simulation.topology"): _*);
-    var suspected = Set[Address]();
-    var seqnum = 0;
-
-    def startTimer(delay: Long): Unit = {
-        val scheduledTimeout = new ScheduleTimeout(period);
-        scheduledTimeout.setTimeoutEvent(CheckTimeout(scheduledTimeout));
-        trigger(scheduledTimeout -> timer);
-    }*/
-
-    //EPFD event handlers
-    /*ctrl uponEvent {
-        case _: Start => handle {
-
-            startTimer(delta)
-        }
-    }*/
     private void startTimer(long delay) {
         SchedulePeriodicTimeout timeout =  new SchedulePeriodicTimeout(delay,delay);
         Timeout t;
@@ -73,5 +52,36 @@ public class EPFD extends ComponentDefinition {
             startTimer(delta);
         }
     };
+
+    protected final Handler<Timeout> timeoutHandler = new Handler<Timeout>() {
+        @Override
+        public void handle(Timeout timeout) {
+
+        }
+    };
+    /*timer uponEvent {
+        case CheckTimeout(_) => handle {
+            if (!alive.intersect(suspected).isEmpty) {
+                period = period + delta
+            }
+
+            seqnum = seqnum + 1;
+
+            for (p <- topology) {
+                if (!alive.contains(p) && !suspected.contains(p)) {
+
+
+                    suspected += p
+
+                } else if (alive.contains(p) && suspected.contains(p)) {
+                    suspected = suspected - p;
+                    trigger(Restore(p) -> epfd);
+                }
+                trigger(PL_Send(p, HeartbeatRequest(seqnum)) -> pLink);
+            }
+            alive = Set[Address]();
+            startTimer(period);
+        }*/
+    }
 
 }

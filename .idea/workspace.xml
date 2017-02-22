@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EPFD.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EventuallyPerfectFailureDetector.java" afterPath="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EventuallyPerfectFailureDetector.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EPFD.java" afterPath="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EPFD.java" />
     </list>
     <ignored path="$PROJECT_DIR$/common/target/" />
     <ignored path="$PROJECT_DIR$/server/target/" />
@@ -36,14 +35,14 @@
       <file leaf-file-name="EPFD.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EPFD.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="398">
-              <caret line="65" column="16" lean-forward="false" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
+            <state relative-caret-position="188">
+              <caret line="76" column="53" lean-forward="false" selection-start-line="76" selection-start-column="53" selection-end-line="76" selection-end-column="53" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#2383#2384#0" expanded="true" />
                 <element signature="e#2447#2448#0" expanded="true" />
-                <element signature="e#2573#2753#0" expanded="true" />
-                <element signature="e#2752#2753#0" expanded="true" />
+                <element signature="e#2587#2767#0" expanded="true" />
+                <element signature="e#2766#2767#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -1005,7 +1004,7 @@
       <workItem from="1487666742667" duration="2007000" />
       <workItem from="1487669189288" duration="1021000" />
       <workItem from="1487670844943" duration="3668000" />
-      <workItem from="1487753976162" duration="9032000" />
+      <workItem from="1487753976162" duration="9245000" />
     </task>
     <task id="LOCAL-00001" summary="Added data to opResponse class">
       <created>1487666845777</created>
@@ -1050,7 +1049,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="26309000" />
+    <option name="totallyTimeSpent" value="26522000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="4" y="22" width="1276" height="778" extended-state="6" />
@@ -1613,14 +1612,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/main/java/se/kth/id2203/epfd/EPFD.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="65" column="16" lean-forward="false" selection-start-line="65" selection-start-column="16" selection-end-line="65" selection-end-column="16" />
+        <state relative-caret-position="188">
+          <caret line="76" column="53" lean-forward="false" selection-start-line="76" selection-start-column="53" selection-end-line="76" selection-end-column="53" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#2383#2384#0" expanded="true" />
             <element signature="e#2447#2448#0" expanded="true" />
-            <element signature="e#2573#2753#0" expanded="true" />
-            <element signature="e#2752#2753#0" expanded="true" />
+            <element signature="e#2587#2767#0" expanded="true" />
+            <element signature="e#2766#2767#0" expanded="true" />
           </folding>
         </state>
       </provider>
