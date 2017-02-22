@@ -27,6 +27,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.TreeMultimap;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.collect.UnmodifiableIterator;
 import se.kth.id2203.bootstrapping.NodeAssignment;
@@ -35,7 +37,7 @@ import se.kth.id2203.networking.NetAddress;
 public class LookupTable implements NodeAssignment {
 
     private static final long serialVersionUID = -8766981433378303267L;
-    private static final int replication_degree = 2;
+    private static final int replication_degree = 3;
 
     private final TreeMultimap<Integer, NetAddress> partitions = TreeMultimap.create();
 
@@ -50,6 +52,19 @@ public class LookupTable implements NodeAssignment {
 
     public Collection<NetAddress> getNodes() {
         return partitions.values();
+    }
+
+    public Set<NetAddress> getPartition(NetAddress addr) {
+        for (Integer key : partitions.keySet()) {
+            Set<NetAddress> addresses = partitions.get(key);
+            for (NetAddress address : addresses) {
+                if(addr.equals(address)){
+                    //addresses.remove(address); //Todo: check if you should remove yourself?
+                    return addresses;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

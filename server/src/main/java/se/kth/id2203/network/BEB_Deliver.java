@@ -1,15 +1,21 @@
 package se.kth.id2203.network;
 
+import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
-import se.sics.kompics.network.Address;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class BEB_Deliver implements KompicsEvent, Serializable {
-    public final Address source;
+    private static final long serialVersionUID = -2181045153332189199L;
+    public final NetAddress source;
     public final KompicsEvent payload;
+    public final UUID request_id;
+    public final NetAddress request_source;
 
-    BEB_Deliver(Address source, KompicsEvent payload){
+    public BEB_Deliver(UUID id, NetAddress addr, NetAddress source, KompicsEvent payload){
+        this.request_id = id;
+        this.request_source = addr;
         this.source = source;
         this.payload = payload;
     }

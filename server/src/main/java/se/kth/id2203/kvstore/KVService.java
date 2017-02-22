@@ -25,12 +25,16 @@ package se.kth.id2203.kvstore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.id2203.atomicregister.AR_Read_Request;
+import se.kth.id2203.atomicregister.AR_Read_Response;
+import se.kth.id2203.atomicregister.AtomicRegister;
 import se.kth.id2203.kvstore.OpResponse.Code;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.overlay.Routing;
 import se.sics.kompics.ClassMatchedHandler;
 import se.sics.kompics.ComponentDefinition;
+import se.sics.kompics.Handler;
 import se.sics.kompics.Positive;
 import se.sics.kompics.network.Network;
 
@@ -44,6 +48,7 @@ public class KVService extends ComponentDefinition {
     //******* Ports ******
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Routing> route = requires(Routing.class);
+    protected final Positive<AtomicRegister> atomicRegister = requires(AtomicRegister.class);
     //******* Fields ******
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     //******* Handlers ******
@@ -53,17 +58,35 @@ public class KVService extends ComponentDefinition {
         public void handle(GetOperation content, Message context) {
             LOG.info("GET request - Key: {}!", content.key);
 
-            if (store.containsKey(content.key)){
-                String data = store.get(content.key);
-                LOG.info("Value: {}!", data);
-                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, data)), net);
+            trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
+
+            //if (store.containsKey(content.key)){
+            //    String data = store.get(content.key);
+            //    LOG.info("Value: {}!", data);
+            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, data)), net);
+            //} else {
+            //    LOG.info("Key not found");
+            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
+            //}
+        }
+
+    };
+
+    protected final Handler<AR_Read_Response> readHandler = new Handler<AR_Read_Response>() {
+
+        @Override
+        public void handle(AR_Read_Response response) {
+            if (response.value != null){
+                LOG.info("Value: {}!", response.value);
+                trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.OK, response.value.toString())), net);
             } else {
                 LOG.info("Key not found");
-                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
+                trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.NOT_FOUND, "")), net);
             }
         }
 
     };
+
 
     protected final ClassMatchedHandler<PutOperation, Message> putHandler = new ClassMatchedHandler<PutOperation, Message>() {
 

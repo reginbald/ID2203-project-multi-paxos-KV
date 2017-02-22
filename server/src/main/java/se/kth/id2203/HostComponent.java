@@ -34,10 +34,6 @@ import se.sics.kompics.network.netty.NettyNetwork;
 import se.sics.kompics.timer.Timer;
 import se.sics.kompics.timer.java.JavaTimer;
 
-/**
- *
- * @author Lars Kroll <lkroll@kth.se>
- */
 public class HostComponent extends ComponentDefinition {
 
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);

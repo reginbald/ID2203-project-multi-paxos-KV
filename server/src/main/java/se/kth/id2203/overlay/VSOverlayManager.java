@@ -31,6 +31,7 @@ import se.kth.id2203.bootstrapping.Booted;
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.bootstrapping.InitialAssignments;
+import se.kth.id2203.network.Partition;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.ClassMatchedHandler;
@@ -57,6 +58,7 @@ public class VSOverlayManager extends ComponentDefinition {
     //******* Ports ******
     protected final Negative<Routing> route = provides(Routing.class);
     protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
+    protected final Negative<Bootstrapping> boot2 = provides(Bootstrapping.class);
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Timer> timer = requires(Timer.class);
     //******* Fields ******
@@ -80,6 +82,8 @@ public class VSOverlayManager extends ComponentDefinition {
             if (event.assignment instanceof LookupTable) {
                 LOG.info("Got NodeAssignment, overlay ready.");
                 lut = (LookupTable) event.assignment;
+
+                trigger(new Partition(lut.getPartition(self)), boot2);
             } else {
                 LOG.error("Got invalid NodeAssignment type. Expected: LookupTable; Got: {}", event.assignment.getClass());
             }

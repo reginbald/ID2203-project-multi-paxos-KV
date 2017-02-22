@@ -23,6 +23,7 @@
  */
 package se.kth.id2203.bootstrapping;
 
+import se.kth.id2203.network.Partition;
 import se.sics.kompics.PortType;
 
 public class Bootstrapping extends PortType {
@@ -31,5 +32,6 @@ public class Bootstrapping extends PortType {
         indication(GetInitialAssignments.class);
         indication(Booted.class);
         request(InitialAssignments.class);
+        indication(Partition.class);
     }
 }
