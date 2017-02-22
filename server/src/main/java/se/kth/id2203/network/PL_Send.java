@@ -3,7 +3,9 @@ package se.kth.id2203.network;
 import se.sics.kompics.KompicsEvent;
 import se.sics.kompics.network.Address;
 
-public class PL_Send implements KompicsEvent {
+import java.io.Serializable;
+
+public class PL_Send implements KompicsEvent, Serializable {
     public final Address dest;
     public final KompicsEvent payload;
 
