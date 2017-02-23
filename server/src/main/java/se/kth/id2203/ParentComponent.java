@@ -57,11 +57,13 @@ public class ParentComponent
 
         // ReadImposeWriteConsultMajorityComponent
         connect(overlay.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(epfd.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(basicb.getPositive(BestEffortBroadcast.class), riwcmc.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), riwcmc.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
         //BasicBroadcast
         connect(overlay.getPositive(Bootstrapping.class), basicb.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(epfd.getPositive(Bootstrapping.class), basicb.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), basicb.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
         //Perfect Link Component
@@ -71,6 +73,7 @@ public class ParentComponent
         connect(timer, epfd.getNegative(Timer.class), Channel.TWO_WAY);
         connect(overlay.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), epfd.getNegative(PerfectLink.class), Channel.TWO_WAY);
+        connect(boot.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
 
     }
 }

@@ -25,6 +25,8 @@ import java.util.Set;
 public class EPFD extends ComponentDefinition {
     private static Logger logger = LoggerFactory.getLogger(EPFD.class);
     protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
+    protected final Negative<Bootstrapping> boot2 = provides(Bootstrapping.class);
+
     // component fields
     public final Positive<Timer> timer = requires(Timer.class);
     public final Positive<PerfectLink> perfectLink = requires(PerfectLink.class);
@@ -32,6 +34,8 @@ public class EPFD extends ComponentDefinition {
     // Todo: What is positive and what is negative ?
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
     private Set<NetAddress> topology = new HashSet<>();
+    private Set<NetAddress> view = new HashSet<>();
+
     private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
@@ -59,6 +63,7 @@ public class EPFD extends ComponentDefinition {
         public void handle(Partition partition) {
             logger.info("epfd Init running");
             topology = partition.nodes;
+            view = new HashSet<>(partition.nodes);
         }
     };
 
@@ -80,12 +85,14 @@ public class EPFD extends ComponentDefinition {
 
             seqnum = seqnum + 1;
 
+            logger.info("Nodes: ", topology);
             for (NetAddress a : topology) {
                 logger.info("Looping first node {}", a.toString());
                 if(!alive.contains(a) && !suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
-                    logger.info("Done adding");
+                    view.remove(a);
+                    trigger(new Partition(view), boot2); //remove from view of partition
                     trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
@@ -114,6 +121,8 @@ public class EPFD extends ComponentDefinition {
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
             if(heartbeatReply.seq == seqnum && suspected.contains(message.src)) {
                 alive.add(message.src);
+                view.add(message.src);
+                trigger(new Partition(view), boot2); // add to view of partition
             }
         }
     };

@@ -52,6 +52,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     protected final Handler<Partition> initHandler = new Handler<Partition>(){
         @Override
         public void handle(Partition partition) {
+            LOG.info("Init: {}", partition.nodes);
             n = partition.nodes.size(); // all nodes in partition
             selfRank = self.getPort(); //Todo: find out if correct
         }
