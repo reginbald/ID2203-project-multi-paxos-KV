@@ -50,8 +50,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(Partition partition) {
             n = partition.nodes.size(); // all nodes in partition
-            //selfRank = self.getPort(); //Todo: find out if correct
-            selfRank = self.getIp().hashCode();
+            selfRank = self.getPort(); //Todo: find out if correct
         }
     };
 
