@@ -76,34 +76,12 @@ public class EPFD extends ComponentDefinition {
                     suspected.remove(a);
                     trigger(new Restore(a), epfd);
                 }
-                trigger(PL_Send(a, ))
+                trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
             }
 
+            alive.clear();
         }
     };
-    /*timer uponEvent {
-        case CheckTimeout(_) => handle {
-            if (!alive.intersect(suspected).isEmpty) {
-                period = period + delta
-            }
 
-            seqnum = seqnum + 1;
-
-            for (p <- topology) {
-                if (!alive.contains(p) && !suspected.contains(p)) {
-
-
-                    suspected += p
-
-                } else if (alive.contains(p) && suspected.contains(p)) {
-                    suspected = suspected - p;
-                    trigger(Restore(p) -> epfd);
-                }
-                trigger(PL_Send(p, HeartbeatRequest(seqnum)) -> pLink);
-            }
-            alive = Set[Address]();
-            startTimer(period);
-        }*/
-    }
 
 }
