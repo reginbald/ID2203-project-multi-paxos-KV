@@ -37,7 +37,6 @@ import se.kth.id2203.networking.NetAddress;
 public class LookupTable implements NodeAssignment {
 
     private static final long serialVersionUID = -8766981433378303267L;
-    private static final int replication_degree = 3;
 
     private final TreeMultimap<Integer, NetAddress> partitions = TreeMultimap.create();
 
@@ -81,7 +80,7 @@ public class LookupTable implements NodeAssignment {
         return sb.toString();
     }
 
-    static LookupTable generate(ImmutableSet<NetAddress> nodes) {
+    static LookupTable generate(ImmutableSet<NetAddress> nodes, int replication_degree) {
         LookupTable lut = new LookupTable();
 
         UnmodifiableIterator<NetAddress> it = nodes.iterator();

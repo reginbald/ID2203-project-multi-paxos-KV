@@ -63,63 +63,64 @@ public class VSOverlayManager extends ComponentDefinition {
     protected final Positive<Timer> timer = requires(Timer.class);
     //******* Fields ******
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
+    final int replication_degree = config().getValue("id2203.project.replication_degree", Integer.class);
     private LookupTable lut = null;
     //******* Handlers ******
     protected final Handler<GetInitialAssignments> initialAssignmentHandler = new Handler<GetInitialAssignments>() {
 
         @Override
         public void handle(GetInitialAssignments event) {
-            LOG.info("Generating LookupTable...");
-            LookupTable lut = LookupTable.generate(event.nodes);
-            LOG.debug("Generated assignments:\n{}", lut);
-            trigger(new InitialAssignments(lut), boot);
+        LOG.info("Generating LookupTable...");
+        LookupTable lut = LookupTable.generate(event.nodes, replication_degree);
+        LOG.debug("Generated assignments:\n{}", lut);
+        trigger(new InitialAssignments(lut), boot);
         }
     };
     protected final Handler<Booted> bootHandler = new Handler<Booted>() {
 
         @Override
         public void handle(Booted event) {
-            if (event.assignment instanceof LookupTable) {
-                LOG.info("Got NodeAssignment, overlay ready.");
-                lut = (LookupTable) event.assignment;
+        if (event.assignment instanceof LookupTable) {
+            LOG.info("Got NodeAssignment, overlay ready.");
+            lut = (LookupTable) event.assignment;
 
-                trigger(new Partition(lut.getPartition(self)), boot2);
-            } else {
-                LOG.error("Got invalid NodeAssignment type. Expected: LookupTable; Got: {}", event.assignment.getClass());
-            }
+            trigger(new Partition(lut.getPartition(self)), boot2);
+        } else {
+            LOG.error("Got invalid NodeAssignment type. Expected: LookupTable; Got: {}", event.assignment.getClass());
+        }
         }
     };
     protected final ClassMatchedHandler<RouteMsg, Message> routeHandler = new ClassMatchedHandler<RouteMsg, Message>() {
 
         @Override
         public void handle(RouteMsg content, Message context) {
-            Collection<NetAddress> partition = lut.lookup(content.key);
-            NetAddress target = J6.randomElement(partition);
-            LOG.info("Forwarding message for key {} to {}", content.key, target);
-            trigger(new Message(context.getSource(), target, content.msg), net);
+        Collection<NetAddress> partition = lut.lookup(content.key);
+        NetAddress target = J6.randomElement(partition);
+        LOG.info("Forwarding message for key {} to {}", content.key, target);
+        trigger(new Message(context.getSource(), target, content.msg), net);
         }
     };
     protected final Handler<RouteMsg> localRouteHandler = new Handler<RouteMsg>() {
 
         @Override
         public void handle(RouteMsg event) {
-            Collection<NetAddress> partition = lut.lookup(event.key);
-            NetAddress target = J6.randomElement(partition);
-            LOG.info("Routing message for key {} to {}", event.key, target);
-            trigger(new Message(self, target, event.msg), net);
+        Collection<NetAddress> partition = lut.lookup(event.key);
+        NetAddress target = J6.randomElement(partition);
+        LOG.info("Routing message for key {} to {}", event.key, target);
+        trigger(new Message(self, target, event.msg), net);
         }
     };
     protected final ClassMatchedHandler<Connect, Message> connectHandler = new ClassMatchedHandler<Connect, Message>() {
 
         @Override
         public void handle(Connect content, Message context) {
-            if (lut != null) {
-                LOG.debug("Accepting connection request from {}", context.getSource());
-                int size = lut.getNodes().size();
-                trigger(new Message(self, context.getSource(), content.ack(size)), net);
-            } else {
-                LOG.info("Rejecting connection request from {}, as system is not ready, yet.", context.getSource());
-            }
+        if (lut != null) {
+            LOG.debug("Accepting connection request from {}", context.getSource());
+            int size = lut.getNodes().size();
+            trigger(new Message(self, context.getSource(), content.ack(size)), net);
+        } else {
+            LOG.info("Rejecting connection request from {}, as system is not ready, yet.", context.getSource());
+        }
         }
     };
 
