@@ -1,8 +1,10 @@
 package se.kth.id2203.epfd;
 
+import com.google.common.collect.Sets;
 import com.oracle.tools.packager.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.id2203.network.PL_Send;
 import se.kth.id2203.network.PerfectLink;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.*;
@@ -26,7 +28,7 @@ public class EPFD extends ComponentDefinition {
     private long delta = config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
-    private long period;
+    private long period = config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
     private Set<NetAddress> alive;
     private Set<NetAddress> suspected;
     private int seqnum = 0;
@@ -56,6 +58,26 @@ public class EPFD extends ComponentDefinition {
     protected final Handler<Timeout> timeoutHandler = new Handler<Timeout>() {
         @Override
         public void handle(Timeout timeout) {
+            logger.info("EPFD timeoutHandler called");
+            if(!(Sets.intersection(suspected,alive).size() == 0)) {
+                period = period + delta;
+            }
+
+            seqnum = seqnum + 1;
+
+            for (NetAddress a : topology) {
+                if(!alive.contains(a) && ! suspected.contains(a)) {
+                    logger.info("Suspecting node {} adding it to suspected", a.toString());
+                    suspected.add(a);
+                    trigger(new Suspect(a), epfd);
+                }
+                else if (alive.contains(a) && suspected.contains(a)) {
+                    logger.info("Removing node {} from suspected", a.toString());
+                    suspected.remove(a);
+                    trigger(new Restore(a), epfd);
+                }
+                trigger(PL_Send(a, ))
+            }
 
         }
     };
