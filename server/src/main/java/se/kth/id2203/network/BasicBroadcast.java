@@ -30,7 +30,7 @@ public class BasicBroadcast extends ComponentDefinition {
     Handler<Partition> initHandler = new Handler<Partition>(){
         @Override
         public void handle(Partition partition) {
-            LOG.info("Init");
+            LOG.info("Init: {}", partition.nodes);
             topology = partition.nodes;
         }
     };
