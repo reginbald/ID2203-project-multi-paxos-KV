@@ -39,7 +39,7 @@ public class BasicBroadcast extends ComponentDefinition {
         public void handle(BEB_Broadcast b) {
             LOG.info("bebBroadcastHandler");
             for (NetAddress t : topology) {
-                trigger(new PL_Send(b.request_id, b.request_source, t, b.payload), pLink);
+                trigger(new PL_Send(t, b.payload), pLink);
             }
         }
     };
@@ -48,7 +48,7 @@ public class BasicBroadcast extends ComponentDefinition {
         @Override
         public void handle(PL_Deliver p) {
             LOG.info("plDeliverHandler");
-            trigger(new BEB_Deliver(p.request_id, p.request_source, p.src, p.payload), beb);
+            trigger(new BEB_Deliver(p.src, p.payload), beb);
         }
     };
 

@@ -59,7 +59,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
             acks = 0;
             readlist = new HashMap<>();
             reading = true;
-            trigger(new BEB_Broadcast(readRequest.request_id, readRequest.request_source, new READ(rid)), beb);
+            trigger(new BEB_Broadcast(new READ(readRequest.request_id, readRequest.request_source, rid)), beb);
         }
     };
 
@@ -71,7 +71,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
             writeval = writeRequest.value;
             acks = 0;
             readlist = new HashMap<>();
-            trigger(new BEB_Broadcast(writeRequest.request_id, writeRequest.request_source, new READ(rid)), beb);
+            trigger(new BEB_Broadcast(new READ(writeRequest.request_id, writeRequest.request_source, rid)), beb);
         }
     };
 
@@ -79,9 +79,8 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(READ read, BEB_Deliver b) {
             LOG.info("BEB_Deliver handler READ");
-            trigger(new PL_Send(b.request_id, b.request_source, b.source, new VALUE(read.rid, ts, wr, value)), pLink);
+            trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.rid, ts, wr, value)), pLink);
         }
-
     };
 
     protected final ClassMatchedHandler<WRITE, BEB_Deliver> beb_deliver_writeHandler = new ClassMatchedHandler<WRITE, BEB_Deliver>() {
@@ -93,7 +92,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                 wr = w.wr;
                 value = w.writeVal;
             }
-            trigger(new PL_Send(b.request_id, b.request_source, b.source, new ACK(w.rid)), pLink);
+            trigger(new PL_Send(b.source, new ACK(w.request_id, w.request_source, w.rid)), pLink);
         }
     };
 
@@ -116,9 +115,9 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     readval = max.val;
                     readlist = new HashMap<>();
                     if (reading){
-                        trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts, max.wr, readval)), beb);
+                        trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, rid, max.ts, max.wr, readval)), beb);
                     } else {
-                        trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts + 1, selfRank, writeval)), beb);
+                        trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, rid, max.ts + 1, selfRank, writeval)), beb);
                     }
                 }
             }
@@ -135,7 +134,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     acks = 0;
                     if (reading){
                         reading = false;
-                        trigger(new AR_Read_Response(p.request_id, p.request_source, readval), nnar);
+                        trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
                     } else {
                         trigger(new AR_Write_Response(), nnar);
                     }

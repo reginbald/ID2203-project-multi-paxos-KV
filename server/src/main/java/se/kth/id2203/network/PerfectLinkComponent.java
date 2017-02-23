@@ -19,7 +19,7 @@ public class PerfectLinkComponent extends ComponentDefinition {
         @Override
         public void handle(PL_Send p) {
             LOG.info("Send handler - to: {}, from: {}, data: {}", p.dest, self, p.payload);
-            trigger(new Message(self, p.dest, new PL_Deliver(p.request_id, p.request_source, p.dest, p.payload)), net);
+            trigger(new Message(self, p.dest, new PL_Deliver(p.dest, p.payload)), net);
         }
     };
 

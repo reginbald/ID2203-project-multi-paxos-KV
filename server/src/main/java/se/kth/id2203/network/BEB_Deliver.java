@@ -12,12 +12,8 @@ public class BEB_Deliver implements KompicsEvent, Serializable, PatternExtractor
 
     public final NetAddress source;
     public final KompicsEvent payload;
-    public final UUID request_id;
-    public final NetAddress request_source;
 
-    public BEB_Deliver(UUID id, NetAddress addr, NetAddress source, KompicsEvent payload){
-        this.request_id = id;
-        this.request_source = addr;
+    public BEB_Deliver(NetAddress source, KompicsEvent payload){
         this.source = source;
         this.payload = payload;
     }

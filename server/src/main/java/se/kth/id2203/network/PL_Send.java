@@ -12,12 +12,7 @@ public class PL_Send implements KompicsEvent, Serializable {
     public final NetAddress dest;
     public final KompicsEvent payload;
 
-    public final UUID request_id;
-    public final NetAddress request_source;
-
-    public PL_Send(UUID id, NetAddress addr, NetAddress dest, KompicsEvent payload){
-        this.request_id = id;
-        this.request_source = addr;
+    public PL_Send(NetAddress dest, KompicsEvent payload){
         this.dest = dest;
         this.payload = payload;
     }
