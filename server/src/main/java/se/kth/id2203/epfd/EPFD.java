@@ -82,7 +82,7 @@ public class EPFD extends ComponentDefinition {
 
             for (NetAddress a : topology) {
                 logger.info("Looping first node {}", a.toString());
-                if(!alive.contains(a) && ! suspected.contains(a)) {
+                if(!alive.contains(a) && !suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
                     logger.info("Done adding");
@@ -105,7 +105,7 @@ public class EPFD extends ComponentDefinition {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
             //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
-            trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
+            trigger(new PL_Send(message.src, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
 
