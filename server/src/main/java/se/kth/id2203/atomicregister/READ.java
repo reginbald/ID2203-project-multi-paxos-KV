@@ -5,7 +5,7 @@ import se.sics.kompics.KompicsEvent;
 import java.io.Serializable;
 
 public class READ implements KompicsEvent, Serializable {
-    private static final long serialVersionUID = -8481045153332189199L;
+    private static final long serialVersionUID = -8481045121332189199L;
 
     public final Integer rid;
 

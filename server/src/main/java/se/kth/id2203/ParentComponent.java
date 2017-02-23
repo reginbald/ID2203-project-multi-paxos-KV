@@ -55,6 +55,7 @@ public class ParentComponent
         // ReadImposeWriteConsultMajorityComponent
         connect(overlay.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(basicb.getPositive(BestEffortBroadcast.class), riwcmc.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
+        connect(perfectLink.getPositive(PerfectLink.class), riwcmc.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
         //BasicBroadcast
         connect(overlay.getPositive(Bootstrapping.class), basicb.getNegative(Bootstrapping.class), Channel.TWO_WAY);

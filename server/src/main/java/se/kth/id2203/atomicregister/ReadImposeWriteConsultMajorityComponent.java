@@ -3,13 +3,9 @@ package se.kth.id2203.atomicregister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.id2203.bootstrapping.Bootstrapping;
-import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.network.*;
 import se.kth.id2203.networking.NetAddress;
-import se.sics.kompics.ComponentDefinition;
-import se.sics.kompics.Handler;
-import se.sics.kompics.Negative;
-import se.sics.kompics.Positive;
+import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
 
 import java.util.HashMap;
@@ -42,9 +38,9 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         subscribe(ar_read_requestHandler, nnar);
         subscribe(ar_write_requestHandler, nnar);
         subscribe(beb_deliver_readHandler, beb);
-        //subscribe(beb_deliver_writeHandler, beb);
+        subscribe(beb_deliver_writeHandler, beb);
         subscribe(pl_deliver_valueHandler, pLink);
-        //subscribe(pl_deliver_ackHandler, pLink);
+        subscribe(pl_deliver_ackHandler, pLink);
     }
 
     protected final Handler<Partition> initHandler = new Handler<Partition>(){
@@ -54,7 +50,6 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
             selfRank = self.getPort(); //Todo: find out if correct
         }
     };
-
 
     protected final Handler<AR_Read_Request> ar_read_requestHandler = new Handler<AR_Read_Request>() {
         @Override
@@ -80,102 +75,75 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         }
     };
 
-    protected final Handler<BEB_Deliver> beb_deliver_readHandler = new Handler<BEB_Deliver>() {
+    protected final ClassMatchedHandler<READ, BEB_Deliver> beb_deliver_readHandler = new ClassMatchedHandler<READ, BEB_Deliver>() {
         @Override
-        public void handle(BEB_Deliver b) {
-            LOG.info("BEB_Deliver handler");
-            if (b.payload instanceof READ) {
-                READ read = (READ) b.payload;
-                trigger(new PL_Send(b.request_id, b.request_source, b.source, new VALUE(read.rid, ts, wr, value)), pLink);
-            } else {
-                WRITE w = (WRITE) b.payload;
+        public void handle(READ read, BEB_Deliver b) {
+            LOG.info("BEB_Deliver handler READ");
+            trigger(new PL_Send(b.request_id, b.request_source, b.source, new VALUE(read.rid, ts, wr, value)), pLink);
+        }
 
-                if (w.ts > ts && w.wr > wr){
-                    ts = w.ts;
-                    wr = w.wr;
-                    value = w.writeVal;
-                }
-                trigger(new PL_Send(b.request_id, b.request_source, b.source, new ACK(w.rid)), pLink);
+    };
+
+    protected final ClassMatchedHandler<WRITE, BEB_Deliver> beb_deliver_writeHandler = new ClassMatchedHandler<WRITE, BEB_Deliver>() {
+        @Override
+        public void handle(WRITE w, BEB_Deliver b) {
+            LOG.info("BEB_Deliver handler WRITE");
+            if (w.ts > ts && w.wr > wr){
+                ts = w.ts;
+                wr = w.wr;
+                value = w.writeVal;
             }
+            trigger(new PL_Send(b.request_id, b.request_source, b.source, new ACK(w.rid)), pLink);
         }
     };
 
-    //protected final Handler<BEB_Deliver> beb_deliver_writeHandler = new Handler<BEB_Deliver>() {
-    //    @Override
-    //    public void handle(BEB_Deliver b) {
-    //        WRITE w = (WRITE) b.payload;
-    //        if (w.ts > ts && w.wr > wr){
-    //            ts = w.ts;
-    //            wr = w.wr;
-    //            value = w.writeVal;
-    //        }
-    //        trigger(new PL_Send(b.source, new ACK(w.rid)), pLink);
-    //    }
-    //};
-
-    protected final Handler<PL_Deliver> pl_deliver_valueHandler = new Handler<PL_Deliver>() {
+    protected final ClassMatchedHandler<VALUE, PL_Deliver> pl_deliver_valueHandler = new ClassMatchedHandler<VALUE, PL_Deliver>() {
         @Override
-        public void handle(PL_Deliver p) {
-            LOG.info("PL_Deliver handler");
-            if (p.payload instanceof VALUE) {
-                VALUE v = (VALUE) p.payload;
-                if (v.rid == rid) {
-                    readlist.put(p.src, new Tuple(p.src, v.ts, v.wr, v.value));
-                    if(readlist.size() > n/2 ){
-                        HashMap.Entry<Address, Tuple> maxEntry = null;
-                        for (HashMap.Entry<Address, Tuple> entry : readlist.entrySet())
+        public void handle(VALUE v, PL_Deliver p) {
+            LOG.info("PL_Deliver handler VALUE");
+            if (v.rid == rid) {
+                readlist.put(p.src, new Tuple(p.src, v.ts, v.wr, v.value));
+                if(readlist.size() > n/2 ){
+                    HashMap.Entry<Address, Tuple> maxEntry = null;
+                    for (HashMap.Entry<Address, Tuple> entry : readlist.entrySet())
+                    {
+                        if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
                         {
-                            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
-                            {
-                                maxEntry = entry;
-                            }
-                        }
-                        Tuple max = maxEntry.getValue();
-                        readval = max.val;
-                        readlist = new HashMap<>();
-                        if (reading){
-                            trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts, max.wr, readval)), beb);
-                        } else {
-                            trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts + 1, selfRank, writeval)), beb);
+                            maxEntry = entry;
                         }
                     }
-                }
-            } else {
-                ACK v = (ACK) p.payload;
-                if (v.rid == rid) {
-                    acks += 1;
-                    if(acks > n/2){
-                        acks = 0;
-                        if (reading){
-                            reading = false;
-                            trigger(new AR_Read_Response(p.request_id, p.request_source, readval), nnar);
-                        } else {
-                            trigger(new AR_Write_Response(), nnar);
-                        }
+                    Tuple max = maxEntry.getValue();
+                    readval = max.val;
+                    readlist = new HashMap<>();
+                    if (reading){
+                        trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts, max.wr, readval)), beb);
+                    } else {
+                        trigger(new BEB_Broadcast(p.request_id, p.request_source, new WRITE(rid, max.ts + 1, selfRank, writeval)), beb);
                     }
                 }
             }
         }
     };
 
-    //protected final Handler<PL_Deliver> pl_deliver_ackHandler = new Handler<PL_Deliver>() {
-    //    @Override
-    //    public void handle(PL_Deliver p) {
-    //        ACK v = (ACK) p.payload;
-    //        if (v.rid == rid) {
-    //            acks += 1;
-    //            if(acks > n/2){
-    //                acks = 0;
-    //                if (reading){
-    //                    reading = false;
-    //                    trigger(new AR_Read_Response(readval), nnar);
-    //                } else {
-    //                    trigger(new AR_Write_Response(), nnar);
-    //                }
-    //            }
-    //        }
-    //    }
-    //};
+    protected final ClassMatchedHandler<ACK, PL_Deliver> pl_deliver_ackHandler = new ClassMatchedHandler<ACK, PL_Deliver>() {
+        @Override
+        public void handle(ACK v, PL_Deliver p) {
+            LOG.info("PL_Deliver handler ACK");
+            if (v.rid == rid) {
+                acks += 1;
+                if(acks > n/2){
+                    acks = 0;
+                    if (reading){
+                        reading = false;
+                        trigger(new AR_Read_Response(p.request_id, p.request_source, readval), nnar);
+                    } else {
+                        trigger(new AR_Write_Response(), nnar);
+                    }
+                }
+            }
+        }
+
+    };
 
     static class Tuple implements Comparable<Tuple> {
 
