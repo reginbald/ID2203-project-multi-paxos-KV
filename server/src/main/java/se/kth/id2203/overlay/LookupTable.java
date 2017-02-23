@@ -49,7 +49,7 @@ public class LookupTable implements NodeAssignment {
         //return partitions.get(partition);
         int keyHash = key.hashCode();
 
-        int partition = keyHash % partitions.size();
+        int partition = keyHash % partitions.keySet().size();
 
         return partitions.get(partition);
     }
