@@ -9,6 +9,7 @@ import java.util.UUID;
 public class AR_Read_Response implements KompicsEvent, Serializable {
     private static final long serialVersionUID = -3481045153332189199L;
     public final Object value;
+
     public final NetAddress request_source;
     public final UUID request_id;
 

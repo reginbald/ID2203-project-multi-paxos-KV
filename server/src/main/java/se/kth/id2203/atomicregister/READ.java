@@ -1,5 +1,6 @@
 package se.kth.id2203.atomicregister;
 
+import com.google.common.base.MoreObjects;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
 
@@ -18,5 +19,12 @@ public class READ implements KompicsEvent, Serializable {
         this.request_id = request_id;
         this.request_source = request_source;
         this.rid = rid;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("rid", rid)
+                .toString();
     }
 }

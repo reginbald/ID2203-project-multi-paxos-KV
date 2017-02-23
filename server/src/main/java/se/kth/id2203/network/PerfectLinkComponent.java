@@ -18,8 +18,9 @@ public class PerfectLinkComponent extends ComponentDefinition {
     protected final Handler<PL_Send> pl_sendHandler = new Handler<PL_Send>() {
         @Override
         public void handle(PL_Send p) {
-            LOG.info("Send handler - to: {}, from: {}, data: {}", p.dest, self, p.payload);
-            trigger(new Message(self, p.dest, new PL_Deliver(p.dest, p.payload)), net);
+            //LOG.info("Send handler - to: {}, from: {}, data: {}", p.dest, self, p.payload);
+            trigger(new Message(self, p.dest, new PL_Deliver(self, p.payload)), net);
+
         }
     };
 
@@ -28,7 +29,7 @@ public class PerfectLinkComponent extends ComponentDefinition {
 
         @Override
         public void handle(PL_Deliver content, Message m) {
-            LOG.info("Deliver handler - to: {}, from: {}, data: {}", m.getDestination(), m.getSource(), m.payload);
+            //LOG.info("Deliver handler - to: {}, from: {}, data: {}", m.getDestination(), m.getSource(), m.payload);
             trigger(content, pLink);
         }
     };

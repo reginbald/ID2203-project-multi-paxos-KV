@@ -1,6 +1,7 @@
 package se.kth.id2203.atomicregister;
 
 
+import com.google.common.base.MoreObjects;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
 
@@ -25,5 +26,15 @@ public class VALUE implements KompicsEvent, Serializable {
         this.ts = ts;
         this.wr = wr;
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("rid", rid)
+                .add("ts", ts)
+                .add("wr", wr)
+                .add("value", value)
+                .toString();
     }
 }

@@ -6,6 +6,7 @@ import se.kth.id2203.atomicregister.ReadImposeWriteConsultMajorityComponent;
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.bootstrapping.InitialAssignments;
+import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.ComponentDefinition;
 import se.sics.kompics.Handler;
@@ -37,7 +38,7 @@ public class BasicBroadcast extends ComponentDefinition {
     Handler<BEB_Broadcast> bebBroadcastHandler = new Handler<BEB_Broadcast>() {
         @Override
         public void handle(BEB_Broadcast b) {
-            LOG.info("bebBroadcastHandler");
+            LOG.info("Broadcasting: {} to {}", b.payload.toString(), topology.toString());
             for (NetAddress t : topology) {
                 trigger(new PL_Send(t, b.payload), pLink);
             }
@@ -47,7 +48,7 @@ public class BasicBroadcast extends ComponentDefinition {
     Handler<PL_Deliver> plDeliverHandler = new Handler<PL_Deliver>() {
         @Override
         public void handle(PL_Deliver p) {
-            LOG.info("plDeliverHandler");
+            LOG.info("plDeliverHandler: {}", p.payload.toString());
             trigger(new BEB_Deliver(p.src, p.payload), beb);
         }
     };

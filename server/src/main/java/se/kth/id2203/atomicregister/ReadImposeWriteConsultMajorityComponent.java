@@ -78,7 +78,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     protected final ClassMatchedHandler<READ, BEB_Deliver> beb_deliver_readHandler = new ClassMatchedHandler<READ, BEB_Deliver>() {
         @Override
         public void handle(READ read, BEB_Deliver b) {
-            LOG.info("BEB_Deliver handler READ");
+            LOG.info("BEB_Deliver handler READ: {}", read);
             trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.rid, ts, wr, value)), pLink);
         }
     };
@@ -86,7 +86,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     protected final ClassMatchedHandler<WRITE, BEB_Deliver> beb_deliver_writeHandler = new ClassMatchedHandler<WRITE, BEB_Deliver>() {
         @Override
         public void handle(WRITE w, BEB_Deliver b) {
-            LOG.info("BEB_Deliver handler WRITE");
+            LOG.info("BEB_Deliver handler WRITE: {}", w);
             if (w.ts > ts && w.wr > wr){
                 ts = w.ts;
                 wr = w.wr;
@@ -99,7 +99,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     protected final ClassMatchedHandler<VALUE, PL_Deliver> pl_deliver_valueHandler = new ClassMatchedHandler<VALUE, PL_Deliver>() {
         @Override
         public void handle(VALUE v, PL_Deliver p) {
-            LOG.info("PL_Deliver handler VALUE");
+            LOG.info("PL_Deliver handler VALUE: {}", v);
             if (v.rid == rid) {
                 readlist.put(p.src, new Tuple(p.src, v.ts, v.wr, v.value));
                 if(readlist.size() > n/2 ){
@@ -127,7 +127,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     protected final ClassMatchedHandler<ACK, PL_Deliver> pl_deliver_ackHandler = new ClassMatchedHandler<ACK, PL_Deliver>() {
         @Override
         public void handle(ACK v, PL_Deliver p) {
-            LOG.info("PL_Deliver handler ACK");
+            LOG.info("PL_Deliver handler ACK: {}", v);
             if (v.rid == rid) {
                 acks += 1;
                 if(acks > n/2){
@@ -136,7 +136,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                         reading = false;
                         trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
                     } else {
-                        trigger(new AR_Write_Response(), nnar);
+                        trigger(new AR_Write_Response(v.request_id, v.request_source), nnar);
                     }
                 }
             }

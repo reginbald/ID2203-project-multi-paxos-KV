@@ -1,5 +1,6 @@
 package se.kth.id2203.network;
 
+import com.google.common.base.MoreObjects;
 import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
@@ -11,5 +12,12 @@ public class BEB_Broadcast implements KompicsEvent, Serializable {
 
     public BEB_Broadcast(KompicsEvent payload){
         this.payload = payload;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("payload", payload)
+                .toString();
     }
 }

@@ -1,13 +1,19 @@
 package se.kth.id2203.atomicregister;
 
+import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class AR_Write_Response implements KompicsEvent, Serializable {
     private static final long serialVersionUID = -6481045153332189199L;
 
-    public AR_Write_Response() {
+    public final NetAddress request_source;
+    public final UUID request_id;
 
+    public AR_Write_Response(UUID id, NetAddress source){
+        this.request_id = id;
+        this.request_source = source;
     }
 }

@@ -4,7 +4,6 @@ import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class PL_Send implements KompicsEvent, Serializable {
     private static final long serialVersionUID = -4181045153332189199L;
