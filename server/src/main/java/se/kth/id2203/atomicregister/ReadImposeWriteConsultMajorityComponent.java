@@ -3,6 +3,7 @@ package se.kth.id2203.atomicregister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.id2203.bootstrapping.Bootstrapping;
+import se.kth.id2203.kvstore.OpResponse;
 import se.kth.id2203.network.*;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.*;
@@ -17,20 +18,21 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     private HashMap<Object, Object> store = new HashMap<>();
 
     protected final Negative<AtomicRegister> nnar = provides(AtomicRegister.class);
-
     protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
     protected final Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
     protected final Positive<PerfectLink> pLink = requires(PerfectLink.class);
 
     int ts = 0;
     int wr = 0;
-    //Object value = null;
     int acks = 0;
     Object readval = null;
     Object writeval = null;
+    Object referenceValue = null;
     int rid = 0;
     HashMap<Address, Tuple> readlist = new HashMap<>();
     boolean reading = false;
+
+    boolean cas = false;
 
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     int n;
@@ -40,6 +42,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         subscribe(initHandler, boot);
         subscribe(ar_read_requestHandler, nnar);
         subscribe(ar_write_requestHandler, nnar);
+        subscribe(ar_cas_requestHandler, nnar);
         subscribe(beb_deliver_readHandler, beb);
         subscribe(beb_deliver_writeHandler, beb);
         subscribe(pl_deliver_valueHandler, pLink);
@@ -121,6 +124,16 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     readlist = new HashMap<>();
                     if (reading){
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts, max.wr, readval)), beb);
+                    } else if(cas){
+                        if (store.containsKey(v.key)){
+                            if (referenceValue.equals(store.get(v.key))){
+                                trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
+                            } else { // reference value does not match actual value
+                                trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
+                            }
+                        } else { // Key not in store
+                            trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
+                        }
                     } else {
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
                     }
@@ -140,6 +153,9 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         reading = false;
                         trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
+                    } else if (cas) {
+                        cas = false;
+                        trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.OK), nnar);
                     } else {
                         trigger(new AR_Write_Response(v.request_id, v.request_source), nnar);
                     }
@@ -148,6 +164,23 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         }
 
     };
+
+
+    //---------------------------CAS---------------------------
+    protected final Handler<AR_CAS_Request> ar_cas_requestHandler = new Handler<AR_CAS_Request>() {
+        @Override
+        public void handle(AR_CAS_Request request) {
+            LOG.info("CAS Request handler");
+            rid += 1;
+            writeval = request.newValue;
+            referenceValue = request.referenceValue;
+            cas = true;
+            acks = 0;
+            readlist = new HashMap<>();
+            trigger(new BEB_Broadcast(new READ(request.request_id, request.request_source, request.key, rid)), beb);
+        }
+    };
+
 
     static class Tuple implements Comparable<Tuple> {
 
