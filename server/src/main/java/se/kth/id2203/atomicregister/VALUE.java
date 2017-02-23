@@ -18,10 +18,12 @@ public class VALUE implements KompicsEvent, Serializable {
 
     public final UUID request_id;
     public final NetAddress request_source;
+    public final String key;
 
-    public VALUE(UUID request_id, NetAddress request_source, Integer rid, int ts, int wr, Object value) {
+    public VALUE(UUID request_id, NetAddress request_source, String key, Integer rid, int ts, int wr, Object value) {
         this.request_id = request_id;
         this.request_source = request_source;
+        this.key = key;
         this.rid = rid;
         this.ts = ts;
         this.wr = wr;
@@ -35,6 +37,7 @@ public class VALUE implements KompicsEvent, Serializable {
                 .add("ts", ts)
                 .add("wr", wr)
                 .add("value", value)
+                .add("key", key)
                 .toString();
     }
 }

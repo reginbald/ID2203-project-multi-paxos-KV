@@ -17,10 +17,12 @@ public class WRITE implements KompicsEvent, Serializable {
 
     public final UUID request_id;
     public final NetAddress request_source;
+    public final String key;
 
-    public WRITE(UUID request_id, NetAddress request_source, Integer rid, Integer ts, Integer wr, Object writeVal) {
+    public WRITE(UUID request_id, NetAddress request_source, String key, Integer rid, Integer ts, Integer wr, Object writeVal) {
         this.request_id = request_id;
         this.request_source = request_source;
+        this.key = key;
 
         this.rid = rid;
         this.ts = ts;
@@ -35,6 +37,7 @@ public class WRITE implements KompicsEvent, Serializable {
                 .add("ts", ts)
                 .add("wr", wr)
                 .add("writeVal", writeVal)
+                .add("key", key)
                 .toString();
     }
 }

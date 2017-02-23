@@ -25,9 +25,7 @@ package se.kth.id2203.kvstore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.id2203.atomicregister.AR_Read_Request;
-import se.kth.id2203.atomicregister.AR_Read_Response;
-import se.kth.id2203.atomicregister.AtomicRegister;
+import se.kth.id2203.atomicregister.*;
 import se.kth.id2203.kvstore.OpResponse.Code;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
@@ -38,11 +36,7 @@ import se.sics.kompics.Handler;
 import se.sics.kompics.Positive;
 import se.sics.kompics.network.Network;
 
-import java.util.HashMap;
-
 public class KVService extends ComponentDefinition {
-    // Local data store
-    private HashMap<String, String> store = new HashMap<>();
 
     final static Logger LOG = LoggerFactory.getLogger(KVService.class);
     //******* Ports ******
@@ -59,15 +53,6 @@ public class KVService extends ComponentDefinition {
             LOG.info("GET request - Key: {}!", content.key);
 
             trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
-
-            //if (store.containsKey(content.key)){
-            //    String data = store.get(content.key);
-            //    LOG.info("Value: {}!", data);
-            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, data)), net);
-            //} else {
-            //    LOG.info("Key not found");
-            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
-            //}
         }
 
     };
@@ -84,7 +69,6 @@ public class KVService extends ComponentDefinition {
                 trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.NOT_FOUND, "")), net);
             }
         }
-
     };
 
 
@@ -93,8 +77,16 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(PutOperation content, Message context) {
             LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
-            store.put(content.key, content.value);
-            trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.value)), net);
+            trigger(new AR_Write_Request(content.id, content.key, context.getSource(), content.value), atomicRegister);
+        }
+
+    };
+
+    protected final Handler<AR_Write_Response> writeHandler = new Handler<AR_Write_Response>() {
+
+        @Override
+        public void handle(AR_Write_Response response) {
+            trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.OK, "")), net);
         }
 
     };
@@ -103,27 +95,28 @@ public class KVService extends ComponentDefinition {
 
         @Override
         public void handle(CasOperation content, Message context) {
-            LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
-            if (store.containsKey(content.key)){
-                String data = store.get(content.key);
-                if (content.referenceValue.equals(data)){
-                    LOG.info("New Value set as: {}!", data);
-                    store.put(content.key, content.newValue);
-                    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.newValue)), net);
-                } else {
-                    LOG.info("Reference Value: {} does not mach Old Value: {}!", content.referenceValue, data);
-                    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NO_MATCH, data)), net);
-                }
-            } else {
-                LOG.info("Key not found");
-                trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
-            }
+            //LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            //if (store.containsKey(content.key)){
+            //    String data = store.get(content.key);
+            //    if (content.referenceValue.equals(data)){
+            //        LOG.info("New Value set as: {}!", data);
+            //        store.put(content.key, content.newValue);
+            //        trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.newValue)), net);
+            //    } else {
+            //        LOG.info("Reference Value: {} does not mach Old Value: {}!", content.referenceValue, data);
+            //        trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NO_MATCH, data)), net);
+            //    }
+            //} else {
+            //    LOG.info("Key not found");
+            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
+            //}
         }
 
     };
 
     {
         subscribe(readHandler, atomicRegister);
+        subscribe(writeHandler, atomicRegister);
         subscribe(opHandler, net);
         subscribe(putHandler, net);
         subscribe(casHandler, net);
