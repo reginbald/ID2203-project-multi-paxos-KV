@@ -14,11 +14,12 @@ public class ACK implements KompicsEvent, Serializable {
 
     public final UUID request_id;
     public final NetAddress request_source;
+    public final String key;
 
-
-    public ACK(UUID request_id, NetAddress request_source, Integer rid) {
+    public ACK(UUID request_id, NetAddress request_source, String key, Integer rid) {
         this.request_id = request_id;
         this.request_source = request_source;
+        this.key = key;
         this.rid = rid;
     }
 
@@ -26,6 +27,7 @@ public class ACK implements KompicsEvent, Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("rid", rid)
+                .add("key", key)
                 .toString();
     }
 }

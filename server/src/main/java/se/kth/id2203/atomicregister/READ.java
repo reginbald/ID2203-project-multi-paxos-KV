@@ -13,18 +13,20 @@ public class READ implements KompicsEvent, Serializable {
     public final Integer rid;
     public final UUID request_id;
     public final NetAddress request_source;
+    public final String key;
 
-
-    public READ(UUID request_id, NetAddress request_source, int rid) {
+    public READ(UUID request_id, NetAddress request_source, String request_key, int rid) {
         this.request_id = request_id;
         this.request_source = request_source;
         this.rid = rid;
+        this.key = request_key;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("rid", rid)
+                .add("key", key)
                 .toString();
     }
 }

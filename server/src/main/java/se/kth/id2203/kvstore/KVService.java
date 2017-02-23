@@ -25,9 +25,7 @@ package se.kth.id2203.kvstore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.id2203.atomicregister.AR_Read_Request;
-import se.kth.id2203.atomicregister.AR_Read_Response;
-import se.kth.id2203.atomicregister.AtomicRegister;
+import se.kth.id2203.atomicregister.*;
 import se.kth.id2203.kvstore.OpResponse.Code;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
@@ -84,7 +82,6 @@ public class KVService extends ComponentDefinition {
                 trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.NOT_FOUND, "")), net);
             }
         }
-
     };
 
 
@@ -93,8 +90,18 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(PutOperation content, Message context) {
             LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
-            store.put(content.key, content.value);
-            trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.value)), net);
+            trigger(new AR_Write_Request(content.id, content.key, context.getSource(), content.value), atomicRegister);
+            //store.put(content.key, content.value);
+
+        }
+
+    };
+
+    protected final Handler<AR_Write_Response> writeHandler = new Handler<AR_Write_Response>() {
+
+        @Override
+        public void handle(AR_Write_Response response) {
+            trigger(new Message(self, response.request_source, new OpResponse(response.request_id, Code.OK, "")), net);
         }
 
     };
@@ -124,6 +131,7 @@ public class KVService extends ComponentDefinition {
 
     {
         subscribe(readHandler, atomicRegister);
+        subscribe(writeHandler, atomicRegister);
         subscribe(opHandler, net);
         subscribe(putHandler, net);
         subscribe(casHandler, net);
