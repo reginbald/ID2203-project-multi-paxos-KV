@@ -91,11 +91,12 @@ public class KVService extends ComponentDefinition {
 
     };
 
-    protected final ClassMatchedHandler<CasOperation, Message> casHandler = new ClassMatchedHandler<CasOperation, Message>() {
+    protected final ClassMatchedHandler<CasOperation, Message> casRequestHandler = new ClassMatchedHandler<CasOperation, Message>() {
 
         @Override
         public void handle(CasOperation content, Message context) {
-            //LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
             //if (store.containsKey(content.key)){
             //    String data = store.get(content.key);
             //    if (content.referenceValue.equals(data)){
@@ -114,12 +115,21 @@ public class KVService extends ComponentDefinition {
 
     };
 
+    protected final Handler<AR_CAS_Response> casResponseHandler = new Handler<AR_CAS_Response>() {
+        @Override
+        public void handle(AR_CAS_Response response) {
+            trigger(new Message(self, response.request_source, new OpResponse(response.request_id, response.code, "")), net);
+        }
+    };
+
+
     {
         subscribe(readHandler, atomicRegister);
         subscribe(writeHandler, atomicRegister);
+        subscribe(casResponseHandler, atomicRegister);
         subscribe(opHandler, net);
         subscribe(putHandler, net);
-        subscribe(casHandler, net);
+        subscribe(casRequestHandler, net);
     }
 
 }

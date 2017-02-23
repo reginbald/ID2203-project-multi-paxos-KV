@@ -57,6 +57,6 @@ public class OpResponse implements KompicsEvent, Serializable {
 
     public static enum Code {
 
-        OK, NOT_FOUND, NOT_IMPLEMENTED, NO_MATCH;
+        OK, NOT_FOUND, NOT_IMPLEMENTED, NO_MATCH, ERROR;
     }
 }
