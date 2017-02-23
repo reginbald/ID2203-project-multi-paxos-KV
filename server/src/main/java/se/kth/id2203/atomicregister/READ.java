@@ -1,15 +1,22 @@
 package se.kth.id2203.atomicregister;
 
+import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class READ implements KompicsEvent, Serializable {
-    private static final long serialVersionUID = -5481045153332189199L;
+    private static final long serialVersionUID = -8481045121332189199L;
 
     public final Integer rid;
+    public final UUID request_id;
+    public final NetAddress request_source;
 
-    public READ(Integer rid) {
+
+    public READ(UUID request_id, NetAddress request_source, int rid) {
+        this.request_id = request_id;
+        this.request_source = request_source;
         this.rid = rid;
     }
 }
