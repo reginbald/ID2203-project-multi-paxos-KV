@@ -123,6 +123,7 @@ public class KVService extends ComponentDefinition {
     };
 
     {
+        subscribe(readHandler, atomicRegister);
         subscribe(opHandler, net);
         subscribe(putHandler, net);
         subscribe(casHandler, net);

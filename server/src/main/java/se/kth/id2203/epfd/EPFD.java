@@ -29,10 +29,10 @@ public class EPFD extends ComponentDefinition {
     // Todo: What is positive and what is negative ?
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
     private Set<NetAddress> topology;
-    private long delta = config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
+    private long delta = 0; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
-    private long period = config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
+    private long period = 0; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
     private Set<NetAddress> alive;
     private Set<NetAddress> suspected;
     private int seqnum = 0;
@@ -113,10 +113,10 @@ public class EPFD extends ComponentDefinition {
         }
     };
     {
-        subscribe(startHandler, control);
-        subscribe(timeoutHandler, timer);
-        subscribe(hbRequestHandler, perfectLink);
-        subscribe(hbReplyHandler, perfectLink);
-        subscribe(initHandler, boot);
+        //subscribe(startHandler, control);
+        //subscribe(timeoutHandler, timer);
+        //subscribe(hbRequestHandler, perfectLink);
+        //subscribe(hbReplyHandler, perfectLink);
+        //subscribe(initHandler, boot);
     }
 }
