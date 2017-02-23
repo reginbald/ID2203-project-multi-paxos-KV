@@ -18,6 +18,7 @@ import se.sics.kompics.timer.Timeout;
 import se.sics.kompics.timer.Timer;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,13 +31,13 @@ public class EPFD extends ComponentDefinition {
     public final Negative<EventuallyPerfectFailureDetector> epfd = provides(EventuallyPerfectFailureDetector.class);
     // Todo: What is positive and what is negative ?
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
-    private Set<NetAddress> topology = Collections.emptySet();
+    private Set<NetAddress> topology = new HashSet<>();
     private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
     private long period = 30000; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
-    private Set<NetAddress> alive = Collections.emptySet();
-    private Set<NetAddress> suspected = Collections.emptySet();
+    private Set<NetAddress> alive = new HashSet<>();//Collections.emptySet();
+    private Set<NetAddress> suspected = new HashSet<>();
     private int seqnum = 0;
 
     private void startTimer(long delay) {
@@ -80,9 +81,11 @@ public class EPFD extends ComponentDefinition {
             seqnum = seqnum + 1;
 
             for (NetAddress a : topology) {
+                logger.info("Looping first node {}", a.toString());
                 if(!alive.contains(a) && ! suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
+                    logger.info("Done adding");
                     trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
