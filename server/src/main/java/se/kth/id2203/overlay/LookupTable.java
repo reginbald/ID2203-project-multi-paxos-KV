@@ -41,11 +41,16 @@ public class LookupTable implements NodeAssignment {
     private final TreeMultimap<Integer, NetAddress> partitions = TreeMultimap.create();
 
     public Collection<NetAddress> lookup(String key) {
+        //int keyHash = key.hashCode();
+        //Integer partition = partitions.keySet().floor(keyHash);
+        //if (partition == null) {
+        //    partition = partitions.keySet().last();
+        //}
+        //return partitions.get(partition);
         int keyHash = key.hashCode();
-        Integer partition = partitions.keySet().floor(keyHash);
-        if (partition == null) {
-            partition = partitions.keySet().last();
-        }
+
+        int partition = keyHash % partitions.size();
+
         return partitions.get(partition);
     }
 
