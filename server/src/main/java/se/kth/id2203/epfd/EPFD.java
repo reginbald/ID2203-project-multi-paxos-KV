@@ -5,6 +5,7 @@ import com.oracle.tools.packager.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.id2203.bootstrapping.Bootstrapping;
+import se.kth.id2203.network.PL_Deliver;
 import se.kth.id2203.network.PL_Send;
 import se.kth.id2203.network.Partition;
 import se.kth.id2203.network.PerfectLink;
@@ -16,6 +17,7 @@ import se.sics.kompics.timer.SchedulePeriodicTimeout;
 import se.sics.kompics.timer.Timeout;
 import se.sics.kompics.timer.Timer;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -28,13 +30,13 @@ public class EPFD extends ComponentDefinition {
     public final Negative<EventuallyPerfectFailureDetector> epfd = provides(EventuallyPerfectFailureDetector.class);
     // Todo: What is positive and what is negative ?
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
-    private Set<NetAddress> topology;
-    private long delta = 0; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
+    private Set<NetAddress> topology = Collections.emptySet();
+    private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
-    private long period = 0; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
-    private Set<NetAddress> alive;
-    private Set<NetAddress> suspected;
+    private long period = 30000; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
+    private Set<NetAddress> alive = Collections.emptySet();
+    private Set<NetAddress> suspected = Collections.emptySet();
     private int seqnum = 0;
 
     private void startTimer(long delay) {
@@ -96,27 +98,27 @@ public class EPFD extends ComponentDefinition {
         }
     };
 
-    protected final ClassMatchedHandler<HeartbeatRequest,Message> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, Message>() {
+    protected final ClassMatchedHandler<HeartbeatRequest,PL_Deliver> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, PL_Deliver>() {
         @Override
-        public void handle(HeartbeatRequest heartbeatRequest, Message message) {
+        public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
             //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
             trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
 
-    protected final ClassMatchedHandler<HeartbeatReply, Message> hbReplyHandler = new ClassMatchedHandler<HeartbeatReply, Message>() {
+    protected final ClassMatchedHandler<HeartbeatReply, PL_Deliver> hbReplyHandler = new ClassMatchedHandler<HeartbeatReply, PL_Deliver>() {
         @Override
-        public void handle(HeartbeatReply heartbeatReply, Message message) {
-            if(heartbeatReply.seq == seqnum && suspected.contains(message.getSource())) {
-                alive.add(message.getSource());
+        public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
+            if(heartbeatReply.seq == seqnum && suspected.contains(message.src)) {
+                alive.add(message.src);
             }
         }
     };
     {
-        //subscribe(startHandler, control);
-        //subscribe(timeoutHandler, timer);
-        //subscribe(hbRequestHandler, perfectLink);
-        //subscribe(hbReplyHandler, perfectLink);
-        //subscribe(initHandler, boot);
+        subscribe(startHandler, control);
+        subscribe(timeoutHandler, timer);
+        subscribe(hbRequestHandler, perfectLink);
+        subscribe(hbReplyHandler, perfectLink);
+        subscribe(initHandler, boot);
     }
 }
