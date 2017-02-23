@@ -4,8 +4,11 @@ import com.google.common.collect.Sets;
 import com.oracle.tools.packager.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.network.PL_Send;
+import se.kth.id2203.network.Partition;
 import se.kth.id2203.network.PerfectLink;
+import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
@@ -18,6 +21,7 @@ import java.util.Set;
 
 public class EPFD extends ComponentDefinition {
     private static Logger logger = LoggerFactory.getLogger(EPFD.class);
+    protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
     // component fields
     public final Positive<Timer> timer = requires(Timer.class);
     public final Positive<PerfectLink> perfectLink = requires(PerfectLink.class);
@@ -46,6 +50,14 @@ public class EPFD extends ComponentDefinition {
         timeout.setTimeoutEvent(t);
         trigger(timeout, timer);
     }
+
+    Handler<Partition> initHandler = new Handler<Partition>(){
+        @Override
+        public void handle(Partition partition) {
+            logger.info("epfd Init running");
+            topology = partition.nodes;
+        }
+    };
 
     protected final Handler<Start> startHandler = new Handler<Start>() {
         @Override
@@ -80,8 +92,31 @@ public class EPFD extends ComponentDefinition {
             }
 
             alive.clear();
+            startTimer(period);
         }
     };
 
+    protected final ClassMatchedHandler<HeartbeatRequest,Message> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, Message>() {
+        @Override
+        public void handle(HeartbeatRequest heartbeatRequest, Message message) {
+            //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
+            trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
+        }
+    };
 
+    protected final ClassMatchedHandler<HeartbeatReply, Message> hbReplyHandler = new ClassMatchedHandler<HeartbeatReply, Message>() {
+        @Override
+        public void handle(HeartbeatReply heartbeatReply, Message message) {
+            if(heartbeatReply.seq == seqnum && suspected.contains(message.getSource())) {
+                alive.add(message.getSource());
+            }
+        }
+    };
+    {
+        subscribe(startHandler, control);
+        subscribe(timeoutHandler, timer);
+        subscribe(hbRequestHandler, perfectLink);
+        subscribe(hbReplyHandler, perfectLink);
+        subscribe(initHandler, boot);
+    }
 }
