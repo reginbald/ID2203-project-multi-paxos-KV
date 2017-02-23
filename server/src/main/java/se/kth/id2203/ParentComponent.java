@@ -6,6 +6,7 @@ import se.kth.id2203.atomicregister.ReadImposeWriteConsultMajorityComponent;
 import se.kth.id2203.bootstrapping.BootstrapClient;
 import se.kth.id2203.bootstrapping.BootstrapServer;
 import se.kth.id2203.bootstrapping.Bootstrapping;
+import se.kth.id2203.epfd.EPFD;
 import se.kth.id2203.kvstore.KVService;
 import se.kth.id2203.network.BasicBroadcast;
 import se.kth.id2203.network.BestEffortBroadcast;
@@ -33,6 +34,8 @@ public class ParentComponent
     protected final Component riwcmc = create(ReadImposeWriteConsultMajorityComponent.class, Init.NONE);
     protected final Component basicb = create(BasicBroadcast.class, Init.NONE);
     protected final Component perfectLink = create(PerfectLinkComponent.class, Init.NONE);
+    protected final Component epfd = create(EPFD.class, Init.NONE);
+
 
     {
 
@@ -63,5 +66,11 @@ public class ParentComponent
 
         //Perfect Link Component
         connect(net, perfectLink.getNegative(Network.class), Channel.TWO_WAY);
+
+        // EPFD Component
+        connect(timer, epfd.getNegative(Timer.class), Channel.TWO_WAY);
+        connect(overlay.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(perfectLink.getPositive(PerfectLink.class), epfd.getNegative(PerfectLink.class), Channel.TWO_WAY);
+
     }
 }
