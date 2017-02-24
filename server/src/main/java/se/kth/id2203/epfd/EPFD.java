@@ -98,7 +98,7 @@ public class EPFD extends ComponentDefinition {
                 else if (alive.contains(a) && suspected.contains(a)) {
                     logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
-                    //trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
+                    trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
                     trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
