@@ -105,8 +105,9 @@ public class LookupTable implements NodeAssignment {
             Set<NetAddress> addresses = partitions.get(key);
             for (NetAddress address : addresses) {
                 if(self.equals(address)){
-                    addresses.removeAll(suspects);
-                    return addresses;
+                    HashSet<NetAddress> out = new HashSet<>(addresses);
+                    out.removeAll(suspects);
+                    return out;
                 }
             }
         }

@@ -63,6 +63,7 @@ public class EPFD extends ComponentDefinition {
         public void handle(AllNodes all) {
             logger.info("EFPD Init: {}", all.nodes);
             topology = all.nodes;
+            topology.remove(self);
         }
     };
 
@@ -92,18 +93,18 @@ public class EPFD extends ComponentDefinition {
                 if(!alive.contains(a) && !suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
-                    trigger(new Suspects(suspected), boot2); //send suspects to overlay manager
                     trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
                     logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
-                    trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
+
                     trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
             }
-
+            logger.info("suspects: {}", suspected);
+            trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
             alive.clear();
             startTimer(period);
         }
@@ -112,7 +113,7 @@ public class EPFD extends ComponentDefinition {
     protected final ClassMatchedHandler<HeartbeatRequest,PL_Deliver> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, PL_Deliver>() {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
-            logger.info("Received hbRequest from {} ", message.src);
+            //logger.info("Received hbRequest from {} ", message.src);
             trigger(new PL_Send(message.src, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
@@ -120,10 +121,11 @@ public class EPFD extends ComponentDefinition {
     protected final ClassMatchedHandler<HeartbeatReply, PL_Deliver> hbReplyHandler = new ClassMatchedHandler<HeartbeatReply, PL_Deliver>() {
         @Override
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
-            logger.info("Received hbReply from {} ", message.src);
+            //logger.info("Received hbReply from {} ", message.src);
             if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
                 logger.info("Adding {} to alive", message.src);
                 alive.add(message.src);
+
             }
         }
     };

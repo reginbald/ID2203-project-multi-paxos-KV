@@ -96,6 +96,7 @@ public class VSOverlayManager extends ComponentDefinition {
     protected final Handler<Suspects> suspectsHandler = new Handler<Suspects>() {
         @Override
         public void handle(Suspects event) {
+            LOG.info("Suspects: {}", event.suspects);
             trigger(new Partition(lut.getPartitionWithOutSuspects(self, event.suspects)), boot2);
         }
     };
