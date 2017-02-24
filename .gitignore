@@ -95,3 +95,6 @@ lib_managed/ src_managed/ project/boot/ .history .cache
 .ensime .ensime_cache/ .scala_dependencies .worksheet
 # ENSIME specific
 # End of https://www.gitignore.io/api/macos,maven,intellij+iml,intellij,java,scala,sbt,git
+
+
+./idea/workspace.xml
