@@ -6,15 +6,14 @@ import se.sics.kompics.KompicsEvent;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class PutOperation implements KompicsEvent, Serializable {
+public class PutOperation extends Operation implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 2525600659083087179L; //Todo: what is this?
     public final String key;
     public final String value;
-    public final UUID id;
 
     public PutOperation(String key, String value) {
+        super(UUID.randomUUID());
         this.key = key;
-        this.id = UUID.randomUUID();
         this.value = value;
     }
     @Override

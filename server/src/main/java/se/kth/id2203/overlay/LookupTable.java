@@ -54,6 +54,12 @@ public class LookupTable implements NodeAssignment {
         return partitions.get(partition);
     }
 
+    public Collection<NetAddress> lookup(String key, Set<NetAddress> suspects) {
+        HashSet<NetAddress> out = new HashSet<>(lookup(key));
+        out.removeAll(suspects);
+        return out;
+    }
+
     public Collection<NetAddress> getNodes() {
         return partitions.values();
     }
@@ -117,4 +123,6 @@ public class LookupTable implements NodeAssignment {
     public Set<NetAddress> getAllNodes() {
         return new HashSet<>(partitions.values());
     }
+
+
 }

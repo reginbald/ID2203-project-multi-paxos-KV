@@ -86,24 +86,24 @@ public class EPFD extends ComponentDefinition {
 
             seqnum = seqnum + 1;
 
-            logger.info("Suspected size {} ", suspected.size());
-            logger.info("Alive size {} ", alive.size());
+            //logger.info("Suspected size {} ", suspected.size());
+            //logger.info("Alive size {} ", alive.size());
             for (NetAddress a : topology) {
-                logger.info("Looping node {}", a.toString());
+                //logger.info("Looping node {}", a.toString());
                 if(!alive.contains(a) && !suspected.contains(a)) {
-                    logger.info("Suspecting node {} adding it to suspected", a.toString());
+                    //logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
                     trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
-                    logger.info("Removing node {} from suspected", a.toString());
+                    //logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
 
                     trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
             }
-            logger.info("suspects: {}", suspected);
+            //logger.info("suspects: {}", suspected);
             trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
             alive.clear();
             startTimer(period);
@@ -123,7 +123,7 @@ public class EPFD extends ComponentDefinition {
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
             //logger.info("Received hbReply from {} ", message.src);
             if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
-                logger.info("Adding {} to alive", message.src);
+                //logger.info("Adding {} to alive", message.src);
                 alive.add(message.src);
 
             }

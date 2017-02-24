@@ -25,6 +25,10 @@ package se.kth.id2203.overlay;
 
 import com.larskroll.common.J6;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.id2203.bootstrapping.Booted;
@@ -33,6 +37,8 @@ import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.bootstrapping.InitialAssignments;
 import se.kth.id2203.epfd.AllNodes;
 import se.kth.id2203.epfd.Suspects;
+import se.kth.id2203.kvstore.OpResponse;
+import se.kth.id2203.kvstore.Operation;
 import se.kth.id2203.network.Partition;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
@@ -67,6 +73,7 @@ public class VSOverlayManager extends ComponentDefinition {
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     final int replication_degree = config().getValue("id2203.project.replication_degree", Integer.class);
     private LookupTable lut = null;
+    private Set<NetAddress> suspects = new HashSet<>();
     //******* Handlers ******
     protected final Handler<GetInitialAssignments> initialAssignmentHandler = new Handler<GetInitialAssignments>() {
 
@@ -97,6 +104,7 @@ public class VSOverlayManager extends ComponentDefinition {
         @Override
         public void handle(Suspects event) {
             LOG.info("Suspects: {}", event.suspects);
+            suspects = new HashSet<>(event.suspects);
             trigger(new Partition(lut.getPartitionWithOutSuspects(self, event.suspects)), boot2);
         }
     };
@@ -105,17 +113,22 @@ public class VSOverlayManager extends ComponentDefinition {
 
         @Override
         public void handle(RouteMsg content, Message context) {
-        Collection<NetAddress> partition = lut.lookup(content.key);
-        NetAddress target = J6.randomElement(partition);
-        LOG.info("Forwarding message for key {} to {}", content.key, target);
-        trigger(new Message(context.getSource(), target, content.msg), net);
+            Collection<NetAddress> partition = lut.lookup(content.key, suspects);
+            if (partition.size() <= 0){
+                Operation op = (Operation) content.msg;
+                trigger(new Message(self, context.getSource(), new OpResponse(op.id, OpResponse.Code.ERROR, "")), net);
+            } else {
+                NetAddress target = J6.randomElement(partition);
+                LOG.info("Forwarding message for key {} to {}", content.key, target);
+                trigger(new Message(context.getSource(), target, content.msg), net);
+            }
         }
     };
     protected final Handler<RouteMsg> localRouteHandler = new Handler<RouteMsg>() {
 
         @Override
         public void handle(RouteMsg event) {
-        Collection<NetAddress> partition = lut.lookup(event.key);
+        Collection<NetAddress> partition = lut.lookup(event.key, suspects);
         NetAddress target = J6.randomElement(partition);
         LOG.info("Routing message for key {} to {}", event.key, target);
         trigger(new Message(self, target, event.msg), net);
