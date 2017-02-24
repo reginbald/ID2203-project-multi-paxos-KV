@@ -39,12 +39,13 @@ public class EPFD extends ComponentDefinition {
     private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
     //mutable state
-    private long period = 30000; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
+    private long period = 50000; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
     private Set<NetAddress> alive = new HashSet<>();//Collections.emptySet();
     private Set<NetAddress> suspected = new HashSet<>();
     private int seqnum = 0;
 
     private void startTimer(long delay) {
+        logger.info("startTimer called with delay: {}", delay);
         SchedulePeriodicTimeout timeout =  new SchedulePeriodicTimeout(delay,delay);
         Timeout t;
         t = new Timeout(timeout) {
@@ -80,14 +81,15 @@ public class EPFD extends ComponentDefinition {
         public void handle(Timeout timeout) {
             logger.info("EPFD timeoutHandler called");
             if(!(Sets.intersection(suspected,alive).size() == 0)) {
+                logger.info("increasing delta to : {}", period + delta);
                 period = period + delta;
             }
 
             seqnum = seqnum + 1;
 
-            logger.info("Nodes: ", topology);
+            logger.info("Suspected size {} ", suspected.size());
             for (NetAddress a : topology) {
-                logger.info("Looping first node {}", a.toString());
+                logger.info("Looping node {}", a.toString());
                 if(!alive.contains(a) && !suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
@@ -112,6 +114,7 @@ public class EPFD extends ComponentDefinition {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
             //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
+            logger.info("received hbRequest from {} ", message.src);
             trigger(new PL_Send(message.src, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
@@ -119,7 +122,7 @@ public class EPFD extends ComponentDefinition {
     protected final ClassMatchedHandler<HeartbeatReply, PL_Deliver> hbReplyHandler = new ClassMatchedHandler<HeartbeatReply, PL_Deliver>() {
         @Override
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
-            if(heartbeatReply.seq == seqnum && suspected.contains(message.src)) {
+            if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
                 alive.add(message.src);
                 view.add(message.src);
                 trigger(new Partition(view), boot2); // add to view of partition
