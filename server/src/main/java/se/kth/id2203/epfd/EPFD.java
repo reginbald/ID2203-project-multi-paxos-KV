@@ -61,7 +61,7 @@ public class EPFD extends ComponentDefinition {
     Handler<AllNodes> initHandler = new Handler<AllNodes>(){
         @Override
         public void handle(AllNodes all) {
-            logger.info("epfd Init running");
+            logger.info("Init: {}", all.nodes);
             topology = all.nodes;
         }
     };
@@ -111,13 +111,8 @@ public class EPFD extends ComponentDefinition {
     protected final ClassMatchedHandler<HeartbeatRequest,PL_Deliver> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, PL_Deliver>() {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
-<<<<<<< HEAD
-            trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
-=======
-            //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
             logger.info("received hbRequest from {} ", message.src);
-            trigger(new PL_Send(message.src, new HeartbeatReply(seqnum)), perfectLink);
->>>>>>> ddbbeb93fad43bcb3637cc0117fe2821c9e014db
+            trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
 
