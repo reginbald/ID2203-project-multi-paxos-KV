@@ -58,17 +58,16 @@ public class LookupTable implements NodeAssignment {
         return partitions.values();
     }
 
-    public Set<NetAddress> getPartition(NetAddress addr) {
+    public Set<NetAddress> getPartition(NetAddress self) {
         for (Integer key : partitions.keySet()) {
             Set<NetAddress> addresses = partitions.get(key);
             for (NetAddress address : addresses) {
-                if(addr.equals(address)){
-                    //addresses.remove(address); //Todo: check if you should remove yourself?
+                if(self.equals(address)){
                     return addresses;
                 }
             }
         }
-        return null;
+        return new HashSet<>();
     }
 
     @Override
@@ -101,4 +100,20 @@ public class LookupTable implements NodeAssignment {
         return lut;
     }
 
+    public Set<NetAddress> getPartitionWithOutSuspects(NetAddress self, Set<NetAddress> suspects) {
+        for (Integer key : partitions.keySet()) {
+            Set<NetAddress> addresses = partitions.get(key);
+            for (NetAddress address : addresses) {
+                if(self.equals(address)){
+                    addresses.removeAll(suspects);
+                    return addresses;
+                }
+            }
+        }
+        return new HashSet<>();
+    }
+
+    public Set<NetAddress> getAllNodes() {
+        return new HashSet<>(partitions.values());
+    }
 }

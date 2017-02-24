@@ -34,7 +34,6 @@ public class EPFD extends ComponentDefinition {
     // Todo: What is positive and what is negative ?
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
     private Set<NetAddress> topology = new HashSet<>();
-    private Set<NetAddress> view = new HashSet<>();
 
     private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
 
@@ -58,12 +57,11 @@ public class EPFD extends ComponentDefinition {
         trigger(timeout, timer);
     }
 
-    Handler<Partition> initHandler = new Handler<Partition>(){
+    Handler<AllNodes> initHandler = new Handler<AllNodes>(){
         @Override
-        public void handle(Partition partition) {
+        public void handle(AllNodes all) {
             logger.info("epfd Init running");
-            topology = partition.nodes;
-            view = new HashSet<>(partition.nodes);
+            topology = all.nodes;
         }
     };
 
@@ -90,13 +88,13 @@ public class EPFD extends ComponentDefinition {
                 if(!alive.contains(a) && ! suspected.contains(a)) {
                     logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
-                    view.remove(a);
-                    trigger(new Partition(view), boot2); //remove from view of partition
+                    trigger(new Suspects(suspected), boot2); //send suspects to overlay manager
                     trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
                     logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
+                    trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
                     trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
@@ -110,7 +108,6 @@ public class EPFD extends ComponentDefinition {
     protected final ClassMatchedHandler<HeartbeatRequest,PL_Deliver> hbRequestHandler = new ClassMatchedHandler<HeartbeatRequest, PL_Deliver>() {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
-            //trigger(PL_Send(src, HeartbeatReply(seq)) -> pLink)
             trigger(new PL_Send(self, new HeartbeatReply(seqnum)), perfectLink);
         }
     };
@@ -120,8 +117,6 @@ public class EPFD extends ComponentDefinition {
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
             if(heartbeatReply.seq == seqnum && suspected.contains(message.src)) {
                 alive.add(message.src);
-                view.add(message.src);
-                trigger(new Partition(view), boot2); // add to view of partition
             }
         }
     };

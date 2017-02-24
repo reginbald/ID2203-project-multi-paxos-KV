@@ -31,6 +31,8 @@ import se.kth.id2203.bootstrapping.Booted;
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.bootstrapping.InitialAssignments;
+import se.kth.id2203.epfd.AllNodes;
+import se.kth.id2203.epfd.Suspects;
 import se.kth.id2203.network.Partition;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
@@ -83,13 +85,21 @@ public class VSOverlayManager extends ComponentDefinition {
         if (event.assignment instanceof LookupTable) {
             LOG.info("Got NodeAssignment, overlay ready.");
             lut = (LookupTable) event.assignment;
-
-            trigger(new Partition(lut.getPartition(self)), boot2);
+            trigger(new AllNodes(lut.getAllNodes()), boot2); // Picked up by failure detector
+            trigger(new Partition(lut.getPartition(self)), boot2); // Picked up by other components
         } else {
             LOG.error("Got invalid NodeAssignment type. Expected: LookupTable; Got: {}", event.assignment.getClass());
         }
         }
     };
+
+    protected final Handler<Suspects> suspectsHandler = new Handler<Suspects>() {
+        @Override
+        public void handle(Suspects event) {
+            trigger(new Partition(lut.getPartitionWithOutSuspects(self, event.suspects)), boot2);
+        }
+    };
+
     protected final ClassMatchedHandler<RouteMsg, Message> routeHandler = new ClassMatchedHandler<RouteMsg, Message>() {
 
         @Override
@@ -126,6 +136,7 @@ public class VSOverlayManager extends ComponentDefinition {
 
     {
         subscribe(initialAssignmentHandler, boot);
+        subscribe(suspectsHandler, boot);
         subscribe(bootHandler, boot);
         subscribe(routeHandler, net);
         subscribe(localRouteHandler, route);

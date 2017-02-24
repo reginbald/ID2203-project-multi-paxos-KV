@@ -23,6 +23,8 @@
  */
 package se.kth.id2203.bootstrapping;
 
+import se.kth.id2203.epfd.AllNodes;
+import se.kth.id2203.epfd.Suspects;
 import se.kth.id2203.network.Partition;
 import se.sics.kompics.PortType;
 
@@ -33,5 +35,7 @@ public class Bootstrapping extends PortType {
         indication(Booted.class);
         request(InitialAssignments.class);
         indication(Partition.class);
+        indication(Suspects.class);
+        indication(AllNodes.class);
     }
 }
