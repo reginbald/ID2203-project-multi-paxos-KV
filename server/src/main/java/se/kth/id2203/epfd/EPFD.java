@@ -31,15 +31,15 @@ public class EPFD extends ComponentDefinition {
     public final Positive<Timer> timer = requires(Timer.class);
     public final Positive<PerfectLink> perfectLink = requires(PerfectLink.class);
     public final Negative<EventuallyPerfectFailureDetector> epfd = provides(EventuallyPerfectFailureDetector.class);
-    // Todo: What is positive and what is negative ?
-    private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);// TODO:Does this work?
+
+    private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     private Set<NetAddress> topology = new HashSet<>();
 
-    private long delta = 30000; //config().getValue("id2203.project.epfd.delta", Long.class); // TODO:Does this work?
+    private long delta = 30000;
 
     //mutable state
-    private long period = 50000; //config().getValue("id2203.project.epfd.delay", Long.class); // TODO:Does this work?;
-    private Set<NetAddress> alive = new HashSet<>();//Collections.emptySet();
+    private long period = 50000;
+    private Set<NetAddress> alive = new HashSet<>();
     private Set<NetAddress> suspected = new HashSet<>();
     private int seqnum = 0;
 
@@ -98,7 +98,7 @@ public class EPFD extends ComponentDefinition {
                 else if (alive.contains(a) && suspected.contains(a)) {
                     logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
-                    trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
+                    //trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
                     trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
