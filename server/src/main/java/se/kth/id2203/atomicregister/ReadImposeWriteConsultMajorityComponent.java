@@ -10,8 +10,6 @@ import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
 
 import java.util.HashMap;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Stack;
 
 public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition {
@@ -28,19 +26,19 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     int acks = 0;
     int rid = 0;
 
-    Object value;
     Object readval = null;
     Object writeval = null;
     Object referenceValue = null;
 
     // Local data store
-    //private HashMap<Object, Object> store = new HashMap<>();
+    private HashMap<Object, Object> store = new HashMap<>();
 
     HashMap<Address, Tuple> readlist = new HashMap<>();
 
-    Stack<AR_Read_Request> readQueue = new Stack<>();
+    Stack<KompicsEvent> stack = new Stack<>();
 
     boolean reading = false;
+    boolean write = false;
     boolean cas = false;
 
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
@@ -71,8 +69,8 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(AR_Read_Request readRequest) {
             LOG.info("Read Request handler");
-            if(reading){ //put back in queue
-                readQueue.push(readRequest);
+            if(reading || write || cas){ // push to stack
+                stack.push(readRequest);
                 return;
             }
 
@@ -88,6 +86,11 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(AR_Write_Request writeRequest) {
             LOG.info("Write Request handler");
+            if(reading || write || cas){ // push to stack
+                stack.push(writeRequest);
+                return;
+            }
+            write = true;
             rid += 1;
             writeval = writeRequest.value;
             acks = 0;
@@ -96,12 +99,29 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         }
     };
 
+    protected final Handler<AR_CAS_Request> ar_cas_requestHandler = new Handler<AR_CAS_Request>() {
+        @Override
+        public void handle(AR_CAS_Request request) {
+            LOG.info("CAS Request handler");
+            if(reading || write || cas){ // push to stack
+                stack.push(request);
+                return;
+            }
+            cas = true;
+            rid += 1;
+            writeval = request.newValue;
+            referenceValue = request.referenceValue;
+            acks = 0;
+            readlist = new HashMap<>();
+            trigger(new BEB_Broadcast(new READ(request.request_id, request.request_source, request.key, rid)), beb);
+        }
+    };
+
     protected final ClassMatchedHandler<READ, BEB_Deliver> beb_deliver_readHandler = new ClassMatchedHandler<READ, BEB_Deliver>() {
         @Override
         public void handle(READ read, BEB_Deliver b) {
             LOG.info("BEB_Deliver handler READ: {}", read);
-            trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, value)), pLink);
-            //trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, store.get(read.key))), pLink);
+            trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, store.get(read.key))), pLink);
         }
     };
 
@@ -112,10 +132,9 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
             if (w.ts > ts || w.wr > wr){
                 ts = w.ts;
                 wr = w.wr;
-                value = w.writeVal;
-                //store.put(w.key, w.writeVal);
+                store.put(w.key, w.writeVal);
             }
-            //LOG.info("MY STORE: {}", store);
+            LOG.info("MY STORE: {}", store);
             trigger(new PL_Send(b.source, new ACK(w.request_id, w.request_source, w.key, w.rid)), pLink);
         }
     };
@@ -141,15 +160,15 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts, max.wr, readval)), beb);
                     } else if(cas){
-                        //if (store.containsKey(v.key)){
-                        //    if (referenceValue.equals(store.get(v.key))){
-                        //        trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
-                        //    } else { // reference value does not match actual value
-                        //        trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
-                        //    }
-                        //} else { // Key not in store
-                        //    trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
-                        //}
+                        if (store.containsKey(v.key)){
+                            if (referenceValue.equals(store.get(v.key))){
+                                trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
+                            } else { // reference value does not match actual value
+                                trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
+                            }
+                        } else { // Key not in store
+                            trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
+                        }
                     } else {
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
                     }
@@ -169,37 +188,21 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         reading = false;
                         trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
-                        if (!readQueue.empty()){
-                            trigger(readQueue.pop(), nnar2);
-                        }
+                        if(!stack.empty()) trigger(stack.pop(), nnar2);
                     } else if (cas) {
                         cas = false;
                         trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.OK), nnar);
+                        if(!stack.empty()) trigger(stack.pop(), nnar2);
                     } else {
+                        write = false;
                         trigger(new AR_Write_Response(v.request_id, v.request_source), nnar);
+                        if(!stack.empty()) trigger(stack.pop(), nnar2);
                     }
                 }
             }
         }
 
     };
-
-
-    //---------------------------CAS---------------------------
-    protected final Handler<AR_CAS_Request> ar_cas_requestHandler = new Handler<AR_CAS_Request>() {
-        @Override
-        public void handle(AR_CAS_Request request) {
-            LOG.info("CAS Request handler");
-            rid += 1;
-            writeval = request.newValue;
-            referenceValue = request.referenceValue;
-            cas = true;
-            acks = 0;
-            readlist = new HashMap<>();
-            trigger(new BEB_Broadcast(new READ(request.request_id, request.request_source, request.key, rid)), beb);
-        }
-    };
-
 
     static class Tuple implements Comparable<Tuple> {
 
