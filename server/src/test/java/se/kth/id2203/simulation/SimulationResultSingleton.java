@@ -27,11 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Freely adapted from <http://surguy.net/articles/communication-across-classloaders.xml>.
- * 
- * @author Lars Kroll <lkroll@kth.se>
- */
 public class SimulationResultSingleton implements SimulationResultMap {
 
     public static SimulationResultMap instance = null;

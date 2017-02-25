@@ -44,4 +44,29 @@ public class OpsTest {
             Assert.assertEquals("NOT_FOUND", res.get(""+i, String.class));
         }
     }
+
+    @Test
+    public void PutTest() {
+
+    }
+
+    @Test
+    public void CasTest() {
+
+    }
+
+    @Test
+    public void LinearizabilityTest() {
+
+    }
+
+    @Test
+    public void FailureDetectorTest() {
+
+    }
+
+    @Test
+    public void PartitionTest() {
+
+    }
 }
