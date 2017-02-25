@@ -71,7 +71,6 @@ public class KVService extends ComponentDefinition {
         }
     };
 
-
     protected final ClassMatchedHandler<PutOperation, Message> putHandler = new ClassMatchedHandler<PutOperation, Message>() {
 
         @Override
@@ -96,21 +95,6 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(CasOperation content, Message context) {
             LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
-            trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
-            //if (store.containsKey(content.key)){
-            //    String data = store.get(content.key);
-            //    if (content.referenceValue.equals(data)){
-            //        LOG.info("New Value set as: {}!", data);
-            //        store.put(content.key, content.newValue);
-            //        trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.OK, content.newValue)), net);
-            //    } else {
-            //        LOG.info("Reference Value: {} does not mach Old Value: {}!", content.referenceValue, data);
-            //        trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NO_MATCH, data)), net);
-            //    }
-            //} else {
-            //    LOG.info("Key not found");
-            //    trigger(new Message(self, context.getSource(), new OpResponse(content.id, Code.NOT_FOUND, "")), net);
-            //}
         }
 
     };

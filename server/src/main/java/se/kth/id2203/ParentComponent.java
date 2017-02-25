@@ -60,6 +60,7 @@ public class ParentComponent
         connect(overlay.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(epfd.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(basicb.getPositive(BestEffortBroadcast.class), riwcmc.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
+        connect(riwcmc.getPositive(AtomicRegister.class), riwcmc.getNegative(AtomicRegister.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), riwcmc.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
         //BasicBroadcast

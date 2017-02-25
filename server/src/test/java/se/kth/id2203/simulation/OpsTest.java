@@ -34,14 +34,14 @@ public class OpsTest {
     private final SimulationResultMap res = SimulationResultSingleton.getInstance();
 
     @Test
-    public void simpleGetTest() {
+    public void GetTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
         SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3);
         res.put("messages", NUM_MESSAGES);
         simpleBootScenario.simulate(LauncherComp.class);
         for (int i = 0; i < NUM_MESSAGES; i++) {
-            Assert.assertEquals(""+i, res.get(""+i, String.class));
+            Assert.assertEquals("NOT_FOUND", res.get(""+i, String.class));
         }
     }
 }

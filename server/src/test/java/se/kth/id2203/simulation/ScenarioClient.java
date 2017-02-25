@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.id2203.kvstore.GetOperation;
 import se.kth.id2203.kvstore.OpResponse;
 import se.kth.id2203.kvstore.PutOperation;
 import se.kth.id2203.networking.Message;
@@ -63,8 +64,8 @@ public class ScenarioClient extends ComponentDefinition {
         public void handle(Start event) {
             int messages = res.get("messages", Integer.class);
             for (int i = 0; i < messages; i++) {
-                PutOperation op = new PutOperation(""+i, ""+i);
-                RouteMsg rm = new RouteMsg(op.key, op.value, op); // don't know which partition is responsible, so ask the bootstrap server to forward it
+                GetOperation op = new GetOperation("" + i);
+                RouteMsg rm = new RouteMsg(op.key, op); // don't know which partition is responsible, so ask the bootstrap server to forward it
                 trigger(new Message(self, server, rm), net);
                 pending.put(op.id, op.key);
                 LOG.info("Sending {}", op);
@@ -79,7 +80,7 @@ public class ScenarioClient extends ComponentDefinition {
             LOG.debug("Got OpResponse: {}", content);
             String key = pending.remove(content.id);
             if (key != null) {
-                res.put(key, content.data.toString());
+                res.put(key, content.status.toString());
             } else {
                 LOG.warn("ID {} was not pending! Ignoring response.", content.id);
             }

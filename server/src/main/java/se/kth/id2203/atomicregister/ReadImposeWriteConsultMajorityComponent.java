@@ -10,14 +10,15 @@ import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
 
 import java.util.HashMap;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Stack;
 
 public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition {
     final static Logger LOG = LoggerFactory.getLogger(ReadImposeWriteConsultMajorityComponent.class);
 
-    // Local data store
-    private HashMap<Object, Object> store = new HashMap<>();
-
     protected final Negative<AtomicRegister> nnar = provides(AtomicRegister.class);
+    protected final Positive<AtomicRegister> nnar2 = requires(AtomicRegister.class);
     protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
     protected final Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
     protected final Positive<PerfectLink> pLink = requires(PerfectLink.class);
@@ -25,13 +26,21 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
     int ts = 0;
     int wr = 0;
     int acks = 0;
+    int rid = 0;
+
+    Object value;
     Object readval = null;
     Object writeval = null;
     Object referenceValue = null;
-    int rid = 0;
-    HashMap<Address, Tuple> readlist = new HashMap<>();
-    boolean reading = false;
 
+    // Local data store
+    //private HashMap<Object, Object> store = new HashMap<>();
+
+    HashMap<Address, Tuple> readlist = new HashMap<>();
+
+    Stack<AR_Read_Request> readQueue = new Stack<>();
+
+    boolean reading = false;
     boolean cas = false;
 
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
@@ -62,6 +71,11 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(AR_Read_Request readRequest) {
             LOG.info("Read Request handler");
+            if(reading){ //put back in queue
+                readQueue.push(readRequest);
+                return;
+            }
+
             rid += 1;
             acks = 0;
             readlist = new HashMap<>();
@@ -86,7 +100,8 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         @Override
         public void handle(READ read, BEB_Deliver b) {
             LOG.info("BEB_Deliver handler READ: {}", read);
-            trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, store.get(read.key))), pLink);
+            trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, value)), pLink);
+            //trigger(new PL_Send(b.source, new VALUE(read.request_id, read.request_source, read.key, read.rid, ts, wr, store.get(read.key))), pLink);
         }
     };
 
@@ -97,10 +112,10 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
             if (w.ts > ts || w.wr > wr){
                 ts = w.ts;
                 wr = w.wr;
-                //value = w.writeVal;
-                store.put(w.key, w.writeVal);
+                value = w.writeVal;
+                //store.put(w.key, w.writeVal);
             }
-            LOG.info("MY STORE: {}", store);
+            //LOG.info("MY STORE: {}", store);
             trigger(new PL_Send(b.source, new ACK(w.request_id, w.request_source, w.key, w.rid)), pLink);
         }
     };
@@ -126,15 +141,15 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts, max.wr, readval)), beb);
                     } else if(cas){
-                        if (store.containsKey(v.key)){
-                            if (referenceValue.equals(store.get(v.key))){
-                                trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
-                            } else { // reference value does not match actual value
-                                trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
-                            }
-                        } else { // Key not in store
-                            trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
-                        }
+                        //if (store.containsKey(v.key)){
+                        //    if (referenceValue.equals(store.get(v.key))){
+                        //        trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
+                        //    } else { // reference value does not match actual value
+                        //        trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
+                        //    }
+                        //} else { // Key not in store
+                        //    trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
+                        //}
                     } else {
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
                     }
@@ -154,6 +169,9 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         reading = false;
                         trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
+                        if (!readQueue.empty()){
+                            trigger(readQueue.pop(), nnar2);
+                        }
                     } else if (cas) {
                         cas = false;
                         trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.OK), nnar);
