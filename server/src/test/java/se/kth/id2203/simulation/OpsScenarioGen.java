@@ -17,7 +17,7 @@ import se.sics.kompics.simulator.adaptor.Operation1;
 import se.sics.kompics.simulator.adaptor.distributions.extra.BasicIntSequentialDistribution;
 import se.sics.kompics.simulator.events.system.StartNodeEvent;
 
-public abstract class OpScenarioGen {
+public abstract class OpsScenarioGen {
 
     private static final Operation1 startServerOp = new Operation1<StartNodeEvent, Integer>() {
 
