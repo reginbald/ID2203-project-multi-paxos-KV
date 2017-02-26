@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioInterleaveClient.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioInterleaveClient.java" />
-    </list>
+    <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,8 +110,8 @@
       <file leaf-file-name="BEBTestComponent.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/component/BEBTestComponent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="69" lean-forward="false" selection-start-line="13" selection-start-column="69" selection-end-line="13" selection-end-column="69" />
+            <state relative-caret-position="270">
+              <caret line="18" column="24" lean-forward="true" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -912,7 +910,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="378000" />
+    <option name="totallyTimeSpent" value="419000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="26" width="1440" height="874" extended-state="6" />
@@ -1440,8 +1438,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/component/BEBTestComponent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="69" lean-forward="false" selection-start-line="13" selection-start-column="69" selection-end-line="13" selection-end-column="69" />
+        <state relative-caret-position="270">
+          <caret line="18" column="24" lean-forward="true" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
