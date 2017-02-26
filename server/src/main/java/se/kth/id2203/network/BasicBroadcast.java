@@ -2,11 +2,7 @@ package se.kth.id2203.network;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.id2203.atomicregister.ReadImposeWriteConsultMajorityComponent;
 import se.kth.id2203.bootstrapping.Bootstrapping;
-import se.kth.id2203.bootstrapping.GetInitialAssignments;
-import se.kth.id2203.bootstrapping.InitialAssignments;
-import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.ComponentDefinition;
 import se.sics.kompics.Handler;

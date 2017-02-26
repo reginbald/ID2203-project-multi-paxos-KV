@@ -25,8 +25,7 @@ package se.kth.id2203.simulation.test;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import se.kth.id2203.kvstore.OpResponse;
-import se.kth.id2203.simulation.ScenarioGen;
+import se.kth.id2203.simulation.OpScenarioGen;
 import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
 import se.sics.kompics.simulator.SimulationScenario;
@@ -41,7 +40,7 @@ public class OpsTest {
     public void GetTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "GET");
+        SimulationScenario simpleBootScenario = OpScenarioGen.simpleOps(3, "GET");
         res.put("messages", NUM_MESSAGES);
         simpleBootScenario.simulate(LauncherComp.class);
         for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -53,7 +52,7 @@ public class OpsTest {
     public void PutTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "PUT");
+        SimulationScenario simpleBootScenario = OpScenarioGen.simpleOps(3, "PUT");
         res.put("messages", NUM_MESSAGES);
         simpleBootScenario.simulate(LauncherComp.class);
         for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -65,7 +64,7 @@ public class OpsTest {
     public void CasTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "CAS");
+        SimulationScenario simpleBootScenario = OpScenarioGen.simpleOps(3, "CAS");
         res.put("messages", NUM_MESSAGES);
         simpleBootScenario.simulate(LauncherComp.class);
         for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -77,7 +76,7 @@ public class OpsTest {
     public void InterleaveTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "INTERLEAVE");
+        SimulationScenario simpleBootScenario = OpScenarioGen.simpleOps(3, "INTERLEAVE");
         simpleBootScenario.simulate(LauncherComp.class);
         Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("0", String.class));
         Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("1", String.class));
