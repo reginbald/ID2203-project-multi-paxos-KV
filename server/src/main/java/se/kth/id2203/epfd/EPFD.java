@@ -14,6 +14,7 @@ import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
 import se.sics.kompics.timer.SchedulePeriodicTimeout;
+import se.sics.kompics.timer.ScheduleTimeout;
 import se.sics.kompics.timer.Timeout;
 import se.sics.kompics.timer.Timer;
 
@@ -35,51 +36,43 @@ public class EPFD extends ComponentDefinition {
     private NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     private Set<NetAddress> topology = new HashSet<>();
 
-    private long delta = 30000;
+    private long delta = 3000;
 
     //mutable state
-    private long period = 50000;
+    private long period = 5000;
     private Set<NetAddress> alive = new HashSet<>();
     private Set<NetAddress> suspected = new HashSet<>();
     private int seqnum = 0;
 
+    //case class CheckTimeout(timeout: ScheduleTimeout) extends CheckTimeout(timeout);
+
     private void startTimer(long delay) {
         logger.info("startTimer called with delay: {}", delay);
-        SchedulePeriodicTimeout timeout =  new SchedulePeriodicTimeout(delay,delay);
-        Timeout t;
-        t = new Timeout(timeout) {
-            @Override
-            public RequestPathElement getTopPathElement() {
-                return super.getTopPathElement();
-            }
-        };
 
-        timeout.setTimeoutEvent(t);
-        trigger(timeout, timer);
+        ScheduleTimeout scheduledTimeout = new ScheduleTimeout(delay);
+        scheduledTimeout.setTimeoutEvent(new CheckTimeout(scheduledTimeout));
+        trigger(scheduledTimeout, timer);
     }
 
     Handler<AllNodes> initHandler = new Handler<AllNodes>(){
         @Override
         public void handle(AllNodes all) {
             logger.info("EFPD Init: {}", all.nodes);
+            seqnum = 0;
             topology = all.nodes;
             topology.remove(self);
+            alive = topology; // assume everyone is alive in the beginning
+            suspected = new HashSet<>();
+            startTimer(period);
         }
     };
 
-    protected final Handler<Start> startHandler = new Handler<Start>() {
-        @Override
-        public void handle(Start start) {
-            //Log.info("EPFD startHandler running");
-            startTimer(delta);
-        }
-    };
 
     protected final Handler<Timeout> timeoutHandler = new Handler<Timeout>() {
         @Override
         public void handle(Timeout timeout) {
             //logger.info("EPFD timeoutHandler called");
-            if(!(Sets.intersection(suspected,alive).size() == 0)) {
+            if(!(Sets.intersection(suspected,alive).isEmpty())) {
                 logger.info("increasing delta to : {}", period + delta);
                 period = period + delta;
             }
@@ -93,19 +86,19 @@ public class EPFD extends ComponentDefinition {
                 if(!alive.contains(a) && !suspected.contains(a)) {
                     //logger.info("Suspecting node {} adding it to suspected", a.toString());
                     suspected.add(a);
-                    trigger(new Suspect(a), epfd);
+                    //trigger(new Suspect(a), epfd);
                 }
                 else if (alive.contains(a) && suspected.contains(a)) {
-                    //logger.info("Removing node {} from suspected", a.toString());
+                    logger.info("Removing node {} from suspected", a.toString());
                     suspected.remove(a);
 
-                    trigger(new Restore(a), epfd);
+                    //trigger(new Restore(a), epfd);
                 }
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
             }
             //logger.info("suspects: {}", suspected);
             trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
-            alive.clear();
+            alive = new HashSet<>();
             startTimer(period);
         }
     };
@@ -122,15 +115,18 @@ public class EPFD extends ComponentDefinition {
         @Override
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
             //logger.info("Received hbReply from {} ", message.src);
-            if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
-                //logger.info("Adding {} to alive", message.src);
+            /*if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
+                logger.info("Adding {} to alive", message.src);
                 alive.add(message.src);
 
-            }
+            }*/
+            // TODO: why u not work mr if statement ?
+            //logger.info("Adding {} to alive", message.src);
+            alive.add(message.src);
         }
     };
     {
-        subscribe(startHandler, control);
+        //subscribe(startHandler, control);
         subscribe(timeoutHandler, timer);
         subscribe(hbRequestHandler, perfectLink);
         subscribe(hbReplyHandler, perfectLink);
