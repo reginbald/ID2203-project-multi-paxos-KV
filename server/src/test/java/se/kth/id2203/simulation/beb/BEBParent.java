@@ -2,7 +2,6 @@ package se.kth.id2203.simulation.beb;
 
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.network.*;
-import se.kth.id2203.simulation.client.ScenarioBEBClient;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.Timer;

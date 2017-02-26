@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/client/target/" />
@@ -37,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BroadcastTest.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java">
+      <file leaf-file-name="BroadcastTest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="431">
-              <caret line="37" column="57" lean-forward="false" selection-start-line="37" selection-start-column="57" selection-end-line="37" selection-end-column="57" />
+            <state relative-caret-position="135">
+              <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -60,24 +64,24 @@
         </entry>
       </file>
       <file leaf-file-name="ScenarioBEBClient.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java">
+        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+            <state relative-caret-position="143">
+              <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1941#2400#0" expanded="true" />
-                <element signature="e#2399#2400#0" expanded="true" />
+                <element signature="e#1938#2397#0" expanded="true" />
+                <element signature="e#2396#2397#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BEBScenarioGen.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java">
+      <file leaf-file-name="BEBScenarioGen.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="29" column="71" lean-forward="true" selection-start-line="29" selection-start-column="71" selection-end-line="29" selection-end-column="98" />
+            <state relative-caret-position="143">
+              <caret line="18" column="22" lean-forward="false" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -111,7 +115,7 @@
         <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="300">
-              <caret line="27" column="18" lean-forward="false" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
+              <caret line="26" column="18" lean-forward="false" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -184,6 +188,9 @@
         <option value="$PROJECT_DIR$/server/src/main/java/se/kth/id2203/network/BasicBroadcast.java" />
         <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java" />
         <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java" />
+        <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java" />
+        <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java" />
+        <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java" />
       </list>
     </option>
   </component>
@@ -998,8 +1005,8 @@
       <module name="project17-server" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="se.kth.id2203.simulation.test" />
-      <option name="MAIN_CLASS_NAME" value="se.kth.id2203.simulation.test.BroadcastTest" />
+      <option name="PACKAGE_NAME" value="se.kth.id2203.simulation.beb" />
+      <option name="MAIN_CLASS_NAME" value="se.kth.id2203.simulation.beb.BroadcastTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -1044,7 +1051,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1488137219791</updated>
-      <workItem from="1488137221428" duration="2053000" />
+      <workItem from="1488137221428" duration="2115000" />
     </task>
     <task id="LOCAL-00002" summary="working beb test">
       <created>1488139193516</created>
@@ -1053,7 +1060,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488139193516</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="working beb test">
+      <created>1488139325255</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1488139325255</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1089,11 +1103,11 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15098000" />
+    <option name="totallyTimeSpent" value="15160000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="874" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1110,7 +1124,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2576389" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2576389" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1175,26 +1189,26 @@
           <option name="timeStamp" value="56" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java</url>
+          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java</url>
           <line>22</line>
           <properties />
           <option name="timeStamp" value="61" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java</url>
+          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java</url>
           <line>37</line>
           <properties />
           <option name="timeStamp" value="63" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java</url>
+          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java</url>
           <line>41</line>
           <properties />
           <option name="timeStamp" value="89" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java</url>
-          <line>22</line>
+          <url>file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java</url>
+          <line>21</line>
           <properties />
           <option name="timeStamp" value="90" />
         </line-breakpoint>
@@ -1588,39 +1602,39 @@
     <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
-          <caret line="27" column="18" lean-forward="false" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
+          <caret line="26" column="18" lean-forward="false" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java">
+    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="29" column="71" lean-forward="true" selection-start-line="29" selection-start-column="71" selection-end-line="29" selection-end-column="98" />
+        <state relative-caret-position="143">
+          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1938#2397#0" expanded="true" />
+            <element signature="e#2396#2397#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java">
+    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1941#2400#0" expanded="true" />
-            <element signature="e#2399#2400#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
-          <caret line="37" column="57" lean-forward="false" selection-start-line="37" selection-start-column="57" selection-end-line="37" selection-end-column="57" />
+        <state relative-caret-position="143">
+          <caret line="18" column="22" lean-forward="false" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

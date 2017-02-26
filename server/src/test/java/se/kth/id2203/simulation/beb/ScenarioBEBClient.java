@@ -1,4 +1,4 @@
-package se.kth.id2203.simulation.client;
+package se.kth.id2203.simulation.beb;
 
 import java.util.Map;
 import java.util.TreeMap;

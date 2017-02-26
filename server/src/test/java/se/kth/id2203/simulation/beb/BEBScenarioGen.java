@@ -1,4 +1,4 @@
-package se.kth.id2203.simulation;
+package se.kth.id2203.simulation.beb;
 
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.simulation.beb.BEBObserver;

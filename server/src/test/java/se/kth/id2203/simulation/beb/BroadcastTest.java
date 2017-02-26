@@ -1,7 +1,6 @@
-package se.kth.id2203.simulation.test;
+package se.kth.id2203.simulation.beb;
 
 import org.junit.Test;
-import se.kth.id2203.simulation.BEBScenarioGen;
 import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
 import se.sics.kompics.ComponentDefinition;
