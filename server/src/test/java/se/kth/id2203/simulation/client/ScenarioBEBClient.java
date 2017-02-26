@@ -31,12 +31,15 @@ public class ScenarioBEBClient extends ComponentDefinition {
     private final NetAddress server = config().getValue("id2203.project.bootstrap-address", NetAddress.class);
     private final SimulationResultMap res = SimulationResultSingleton.getInstance();
     private final Map<UUID, String> pending = new TreeMap<>();
+
+    private int counter = 0;
     //******* Handlers ******
 
     protected final ClassMatchedHandler<READ, BEB_Deliver> responseHandler = new ClassMatchedHandler<READ, BEB_Deliver>() {
         @Override
         public void handle(READ r, BEB_Deliver b) {
             LOG.debug("Got BEB_Deliver: {}", r);
+            res.put(self.toString(), ++counter);
         }
     };
 
@@ -46,8 +49,8 @@ public class ScenarioBEBClient extends ComponentDefinition {
         public void handle(Partition content, Message context) {
             LOG.debug("Got partition: {}", content);
             trigger(content, boot);
-            trigger(new BEB_Broadcast(new READ(null, null, null, 1)), beb);
-
+            trigger(new BEB_Broadcast(new READ(UUID.randomUUID(), self, "1", 1)), beb);
+            trigger(new Message(self, self, new PL_Deliver(self, new BEB_Broadcast(new READ(UUID.randomUUID(), self, "1", 1)))), net);
         }
     };
 

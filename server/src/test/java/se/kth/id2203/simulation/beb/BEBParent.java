@@ -22,13 +22,12 @@ public class BEBParent extends ComponentDefinition {
         connect(bebClient.getPositive(Bootstrapping.class), basicb.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(basicb.getPositive(BestEffortBroadcast.class), bebClient.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
 
-        connect(net, bebClient.getNegative(Network.class), Channel.TWO_WAY);
-
-
         // connect perfectlink with basicbroadcast via perfectlink port
         connect(perfectLink.getPositive(PerfectLink.class), basicb.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
-        //connect perfectLink to net port
+        //two way connect perfectLink to net port
         connect(net, perfectLink.getNegative(Network.class), Channel.TWO_WAY);
+        //two way connect bebClient to net port
+        connect(net, bebClient.getNegative(Network.class), Channel.TWO_WAY);
     }
 }

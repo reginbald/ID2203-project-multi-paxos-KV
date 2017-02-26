@@ -17,6 +17,8 @@ import se.sics.kompics.timer.SchedulePeriodicTimeout;
 import se.sics.kompics.timer.Timeout;
 import se.sics.kompics.timer.Timer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +32,7 @@ public class BEBObserver extends ComponentDefinition {
     Positive<Network> network = requires(Network.class);
 
     private final int aliveNodes;
+    private boolean stop = false;
 
     private UUID timerId;
 
@@ -57,16 +60,25 @@ public class BEBObserver extends ComponentDefinition {
         public void handle(CheckTimeout event) {
             GlobalView gv = config().getValue("simulation.globalview", GlobalView.class);
 
-            if(gv.getAliveNodes().size() >= aliveNodes) {
+            if(!stop && gv.getAliveNodes().size() >= aliveNodes) {
                 LOG.info("ALIVE - " + aliveNodes);
                 Set<NetAddress> partition = new HashSet<>();
                 for (Address a : gv.getAliveNodes().values()) {
-                    partition.add(new NetAddress(a.getIp(), a.getPort()));
+                    NetAddress netAddress = new NetAddress(a.getIp(), a.getPort());
+                    try {
+                        if (!netAddress.equals(new NetAddress(InetAddress.getByName("0.0.0.0"), 0))){
+                            partition.add(netAddress);
+                        }
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+
                 }
                 for (NetAddress addr : partition) {
                     trigger(new Message(null, addr, new Partition(partition)), network);
                 }
-                gv.terminate();
+                //gv.terminate();
+                stop = true;
             }
         }
     };

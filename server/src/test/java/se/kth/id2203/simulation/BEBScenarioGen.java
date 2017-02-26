@@ -96,7 +96,7 @@ public abstract class BEBScenarioGen {
 
                 @Override
                 public Init getComponentInit() {
-                    return new BEBObserver.Init(5);
+                    return new BEBObserver.Init(6);
                 }
             };
         }
