@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/BEBScenarioGen.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBScenarioGen.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/client/ScenarioBEBClient.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/ScenarioBEBClient.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/BroadcastTest.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BroadcastTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/beb/BEBParent.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/client/target/" />
@@ -1051,7 +1047,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1488137219791</updated>
-      <workItem from="1488137221428" duration="2115000" />
+      <workItem from="1488137221428" duration="2129000" />
     </task>
     <task id="LOCAL-00002" summary="working beb test">
       <created>1488139193516</created>
@@ -1067,7 +1063,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488139325255</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="refactor">
+      <created>1488139391760</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1488139391760</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1103,7 +1106,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15160000" />
+    <option name="totallyTimeSpent" value="15174000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="874" extended-state="6" />
@@ -1150,7 +1153,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="beb test init" />
     <MESSAGE value="working beb test" />
-    <option name="LAST_COMMIT_MESSAGE" value="working beb test" />
+    <MESSAGE value="refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
