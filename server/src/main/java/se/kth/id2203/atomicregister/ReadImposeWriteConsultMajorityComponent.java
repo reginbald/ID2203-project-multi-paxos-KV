@@ -165,9 +165,13 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                                 trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
                             } else { // reference value does not match actual value
                                 trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
+                                cas = false;
+                                if(!stack.empty()) trigger(stack.pop(), nnar2);
                             }
                         } else { // Key not in store
                             trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
+                            cas = false;
+                            if(!stack.empty()) trigger(stack.pop(), nnar2);
                         }
                     } else {
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
