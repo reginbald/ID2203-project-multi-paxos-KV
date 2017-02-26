@@ -26,7 +26,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
     private final Map<UUID, String> pending = new TreeMap<>();
     private final Queue<Operation> queue = new LinkedList<>();
     private int counter = 1;
-    private boolean seven = false;
+    private boolean wait = false;
 
     //******* Handlers ******
     protected final Handler<Start> startHandler = new Handler<Start>() {
@@ -83,8 +83,8 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
             } else {
                 LOG.warn("ID {} was not pending! Ignoring response.", content.id);
             }
-            if (seven) {
-                seven = false;
+            if (wait) {
+                wait = false;
                 return;
             }
             if(!queue.isEmpty()){
@@ -112,7 +112,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
                     res.put("" + counter, "SENT");
                     counter++;
                     if (counter == 8){
-                        seven = true;
+                        wait = true;
                         put = (PutOperation) queue.remove();
                         rm = new RouteMsg(put.key, put.value, put);
                         trigger(new Message(self, server, rm), net);
