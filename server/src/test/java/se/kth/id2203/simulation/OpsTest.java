@@ -25,6 +25,7 @@ package se.kth.id2203.simulation;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import se.kth.id2203.kvstore.OpResponse;
 import se.sics.kompics.simulator.SimulationScenario;
 import se.sics.kompics.simulator.run.LauncherComp;
 
@@ -67,6 +68,25 @@ public class OpsTest {
         for (int i = 0; i < NUM_MESSAGES; i++) {
             Assert.assertEquals("NOT_FOUND", res.get(""+i, String.class));
         }
+    }
+
+    @Test
+    public void InterleaveTest() {
+        long seed = 123;
+        SimulationScenario.setSeed(seed);
+        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "INTERLEAVE");
+        simpleBootScenario.simulate(LauncherComp.class);
+        Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("0", String.class));
+        Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("1", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("2", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("3", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("4", String.class));
+        Assert.assertEquals("Status: NO_MATCH Data: ", res.get("5", String.class));
+        Assert.assertEquals("Status: OK Data: 5", res.get("6", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("7", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("8", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("9", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("10", String.class));
     }
 
     @Test
