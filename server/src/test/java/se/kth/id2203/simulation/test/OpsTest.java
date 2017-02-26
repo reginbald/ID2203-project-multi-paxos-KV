@@ -93,17 +93,12 @@ public class OpsTest {
     }
 
     @Test
-    public void LinearizabilityTest() {
+    public void AtomicityAndLinerizabilityTest() {
 
     }
 
     @Test
-    public void FailureDetectorTest() {
-
-    }
-
-    @Test
-    public void PartitionTest() {
+    public void TerminationTest() {
 
     }
 }
