@@ -11,11 +11,12 @@ public class FailureDetectorTest {
 
     @Test
     public void StrongCompletenessTest() {
-
+        // Eventually, every process that crashes is perma- nently suspected by every correct process.
     }
 
     @Test
     public void EventualStrongAccuracyTest() {
+        // Eventually, no correct process is suspected by any correct process.
 
     }
 }
