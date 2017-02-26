@@ -95,6 +95,7 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(CasOperation content, Message context) {
             LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
         }
 
     };
