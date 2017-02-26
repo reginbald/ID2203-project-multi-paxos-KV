@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f0b243-6d1e-4ea8-854a-06f6a52594e2" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/OpScenarioGen.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/OpsScenarioGen.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/OpsTest.java" afterPath="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/test/OpsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/client/target/" />
@@ -62,8 +61,8 @@
       <file leaf-file-name="workspace.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="392" column="24" lean-forward="true" selection-start-line="392" selection-start-column="24" selection-end-line="392" selection-end-column="24" />
+            <state relative-caret-position="240">
+              <caret line="400" column="21" lean-forward="false" selection-start-line="400" selection-start-column="21" selection-end-line="400" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -143,6 +142,7 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GradleLocalSettings">
@@ -188,6 +188,7 @@
         <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/ScenarioGen.java" />
         <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/OpScenarioGen.java" />
         <option value="$PROJECT_DIR$/server/src/test/java/se/kth/id2203/simulation/OpsScenarioGen.java" />
+        <option value="$PROJECT_DIR$/.idea/workspace.xml" />
       </list>
     </option>
   </component>
@@ -1105,7 +1106,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1487946847726</updated>
-      <workItem from="1487946849468" duration="22214000" />
+      <workItem from="1487946849468" duration="22278000" />
     </task>
     <task id="LOCAL-00001" summary="lookup fix">
       <created>1487948636532</created>
@@ -1234,7 +1235,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="25757000" />
+    <option name="totallyTimeSpent" value="25821000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="26" width="1440" height="874" extended-state="6" />
@@ -1783,8 +1784,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="392" column="24" lean-forward="true" selection-start-line="392" selection-start-column="24" selection-end-line="392" selection-end-column="24" />
+        <state relative-caret-position="240">
+          <caret line="400" column="21" lean-forward="false" selection-start-line="400" selection-start-column="21" selection-end-line="400" selection-end-column="21" />
           <folding />
         </state>
       </provider>
