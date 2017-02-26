@@ -24,6 +24,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
     private final Map<UUID, String> pending = new TreeMap<>();
     private final Queue<Operation> queue = new LinkedList<>();
     private int counter = 1;
+    private boolean seven = false;
 
     //******* Handlers ******
     protected final Handler<Start> startHandler = new Handler<Start>() {
@@ -80,6 +81,10 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
             } else {
                 LOG.warn("ID {} was not pending! Ignoring response.", content.id);
             }
+            if (seven) {
+                seven = false;
+                return;
+            }
             if(!queue.isEmpty()){
                 Operation op = queue.remove();
                 if (op.getClass().equals(GetOperation.class)){
@@ -89,6 +94,14 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
                     pending.put(get.id, ""+ counter);
                     res.put("" + counter, "SENT");
                     counter++;
+                    if (counter == 10){
+                        get = (GetOperation) queue.remove();
+                        rm = new RouteMsg(get.key, get);
+                        trigger(new Message(self, server, rm), net);
+                        pending.put(get.id, ""+ counter);
+                        res.put("" + counter, "SENT");
+                        counter++;
+                    }
                 } else if (op.getClass().equals(PutOperation.class)) {
                     PutOperation put = (PutOperation) op;
                     RouteMsg rm = new RouteMsg(put.key, put.value, put);
@@ -96,6 +109,15 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
                     pending.put(put.id, "" + counter);
                     res.put("" + counter, "SENT");
                     counter++;
+                    if (counter == 8){
+                        seven = true;
+                        put = (PutOperation) queue.remove();
+                        rm = new RouteMsg(put.key, put.value, put);
+                        trigger(new Message(self, server, rm), net);
+                        pending.put(put.id, "" + counter);
+                        res.put("" + counter, "SENT");
+                        counter++;
+                    }
                 } else if (op.getClass().equals(CasOperation.class)) {
                     CasOperation cas = (CasOperation) op;
                     RouteMsg rm = new RouteMsg(cas.key, cas.referenceValue, cas.newValue, cas);
