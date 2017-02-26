@@ -1,4 +1,4 @@
-package se.kth.id2203.simulation;
+package se.kth.id2203.simulation.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +6,9 @@ import se.kth.id2203.kvstore.*;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.overlay.RouteMsg;
+import se.kth.id2203.simulation.SimulationResultMap;
+import se.kth.id2203.simulation.SimulationResultSingleton;
+import se.kth.id2203.simulation.client.ScenarioClient;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.Timer;

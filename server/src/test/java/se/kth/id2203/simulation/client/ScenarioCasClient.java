@@ -1,22 +1,23 @@
-package se.kth.id2203.simulation;
+package se.kth.id2203.simulation.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import se.kth.id2203.kvstore.GetOperation;
-import se.kth.id2203.kvstore.OpResponse;
-import se.kth.id2203.kvstore.PutOperation;
-import se.kth.id2203.networking.Message;
-import se.kth.id2203.networking.NetAddress;
-import se.kth.id2203.overlay.RouteMsg;
-import se.sics.kompics.*;
-import se.sics.kompics.network.Network;
-import se.sics.kompics.timer.Timer;
+        import org.slf4j.Logger;
+        import org.slf4j.LoggerFactory;
+        import se.kth.id2203.kvstore.CasOperation;
+        import se.kth.id2203.kvstore.OpResponse;
+        import se.kth.id2203.networking.Message;
+        import se.kth.id2203.networking.NetAddress;
+        import se.kth.id2203.overlay.RouteMsg;
+        import se.kth.id2203.simulation.SimulationResultMap;
+        import se.kth.id2203.simulation.SimulationResultSingleton;
+        import se.sics.kompics.*;
+        import se.sics.kompics.network.Network;
+        import se.sics.kompics.timer.Timer;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+        import java.util.Map;
+        import java.util.TreeMap;
+        import java.util.UUID;
 
-public class ScenarioPutClient  extends ComponentDefinition {
+public class ScenarioCasClient  extends ComponentDefinition {
     final static Logger LOG = LoggerFactory.getLogger(ScenarioClient.class);
     //******* Ports ******
     protected final Positive<Network> net = requires(Network.class);
@@ -33,8 +34,8 @@ public class ScenarioPutClient  extends ComponentDefinition {
         public void handle(Start event) {
             int messages = res.get("messages", Integer.class);
             for (int i = 0; i < messages; i++) {
-                PutOperation op = new PutOperation("" + i, ""+i);
-                RouteMsg rm = new RouteMsg(op.key, op.value, op); // don't know which partition is responsible, so ask the bootstrap server to forward it
+                CasOperation op = new CasOperation("" + i, ""+i, ""+i + 1);
+                RouteMsg rm = new RouteMsg(op.key, op.referenceValue, op.newValue, op); // don't know which partition is responsible, so ask the bootstrap server to forward it
                 trigger(new Message(self, server, rm), net);
                 pending.put(op.id, op.key);
                 LOG.info("Sending {}", op);
