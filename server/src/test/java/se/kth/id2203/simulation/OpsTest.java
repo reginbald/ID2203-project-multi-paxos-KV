@@ -37,7 +37,7 @@ public class OpsTest {
     public void GetTest() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3);
+        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "GET");
         res.put("messages", NUM_MESSAGES);
         simpleBootScenario.simulate(LauncherComp.class);
         for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -47,12 +47,26 @@ public class OpsTest {
 
     @Test
     public void PutTest() {
-
+        long seed = 123;
+        SimulationScenario.setSeed(seed);
+        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "PUT");
+        res.put("messages", NUM_MESSAGES);
+        simpleBootScenario.simulate(LauncherComp.class);
+        for (int i = 0; i < NUM_MESSAGES; i++) {
+            Assert.assertEquals("OK", res.get(""+i, String.class));
+        }
     }
 
     @Test
     public void CasTest() {
-
+        long seed = 123;
+        SimulationScenario.setSeed(seed);
+        SimulationScenario simpleBootScenario = ScenarioGen.simpleOps(3, "CAS");
+        res.put("messages", NUM_MESSAGES);
+        simpleBootScenario.simulate(LauncherComp.class);
+        for (int i = 0; i < NUM_MESSAGES; i++) {
+            Assert.assertEquals("NOT_FOUND", res.get(""+i, String.class));
+        }
     }
 
     @Test

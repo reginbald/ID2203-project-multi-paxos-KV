@@ -42,10 +42,6 @@ import se.sics.kompics.Start;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.Timer;
 
-/**
- *
- * @author Lars Kroll <lkroll@kth.se>
- */
 public class ScenarioClient extends ComponentDefinition {
 
     final static Logger LOG = LoggerFactory.getLogger(ScenarioClient.class);
