@@ -163,15 +163,38 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(AcceptAck p, PL_Deliver d) {
             LOG.info("AcceptAck: {}", p);
-
+            t = Math.max(t, p.timestamp) + 1;
+            if (p.proposer_timestamp == pts){
+                accepted.put(d.src, p.acceptor_seq_length);
+                int nal = 0;
+                for (NetAddress node : nodes) {
+                    if(accepted.get(node) >= p.acceptor_seq_length){
+                        nal++;
+                    }
+                }
+                if(pl < p.acceptor_seq_length && nal > Math.floor(n/2)){
+                    pl = p.acceptor_seq_length;
+                    for (NetAddress node : nodes) {
+                        if (readlist.get(node) != null){
+                            trigger(new PL_Send(node, new Decide(t,pts, pl)), pLink);
+                        }
+                    }
+                }
+            }
         }
     };
 
     protected final ClassMatchedHandler<Decide, PL_Deliver> decideHandler = new ClassMatchedHandler<Decide, PL_Deliver>() {
         @Override
         public void handle(Decide p, PL_Deliver d) {
-            LOG.info("AcceptAck: {}", p);
-
+            LOG.info("decide: {}", p);
+            t = Math.max(t, p.timestamp) + 1;
+            if (p.proposer_timestamp == prepts ){
+                while (al < p.proposer_seq_length) {
+                    trigger(new DECIDE_RESPONSE(av.get(al)), asc);
+                    al = al + 1;
+                }
+            }
         }
     };
 

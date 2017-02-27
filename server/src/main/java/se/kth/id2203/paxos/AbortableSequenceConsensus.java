@@ -8,7 +8,7 @@ public class AbortableSequenceConsensus extends PortType {
         request(Propose.class);
 
         //Output to the port
-        indication(Decide.class);
+        indication(DECIDE_RESPONSE.class);
         indication(Abort.class);
     }
 }
