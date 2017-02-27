@@ -84,8 +84,10 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
         } else {
             LOG.warn("ID {} was not pending! Ignoring response.", content.id);
         }
+
         if(key.equals("7")) seven = true;
         if(key.equals("9")) nine = true;
+
         if (seven && counter == 7){ // concurrent PUT
             PutOperation put = (PutOperation) queue.remove();
             RouteMsg rm = new RouteMsg(put.key, put.value, put);
