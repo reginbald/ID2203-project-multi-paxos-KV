@@ -25,16 +25,16 @@ public class MultiPaxos extends ComponentDefinition {
     int selfRank;
     private int t; //logical clock
     private int prepts; //acceptor: prepared timestamp
-    private int ats, pts;
-    private LinkedList<Object> av, pv;
-    private int al, pl;
+    private int ats, pts; // acceptor timestamp, proposer timestamp
+    private LinkedList<Object> av, pv; // accepted seq, proposed seq
+    private int al, pl; // length of decided seq, length of learned seq
 
     Set<NetAddress> nodes;
 
     private List<Object> proposedValues;
     private HashMap<NetAddress, Tuple> readlist;
-    private HashMap<NetAddress, Integer> accepted;
-    private HashMap<NetAddress, Integer> decided;
+    private HashMap<NetAddress, Integer> accepted; //proposer’s knowledge about length of acceptor’s longest accepted seq
+    private HashMap<NetAddress, Integer> decided; //proposer’s knowledge about length of acceptor’s longest decided seq
 
 
     protected final Handler<Partition> initHandler = new Handler<Partition>(){
@@ -127,6 +127,26 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(PrepareAck p, PL_Deliver d) {
             LOG.info("PrepareAck: {}", p);
+            t = Math.max(t, p.timestamp) + 1; // TODO: is p.timestamp correct?
+            //if pts′= pts then
+            //pts = proposer timestamp
+            if(p.proposer_timestamp == pts) {
+                //readlist[q] := (ts, vsuf );
+                // decided[q] := l;
+                readlist.put(d.src, new Tuple(p.timestamp, p.acceptor_seq));
+                // decided[q] := l;
+                decided.put(d.src, p.acceptor_seq_length);
+                //if #(readlist) = ⌊N/2⌋ + 1 then
+                if (readlist.size() == (Math.floor(n/2)+1)) {
+                    // (ts′, vsuf ′) := (0, ⟨⟩);
+                    List<Object> vsufPrime = new ArrayList<>();
+                    Tuple tuple = new Tuple(0, vsufPrime);
+                    // for all (ts′′, vsuf ′′) ∈ readlist do
+                    for(Map.Entry<NetAddress,Tuple> entry : readlist.entrySet()) {
+
+                    }
+                }
+            }
 
         }
     };
