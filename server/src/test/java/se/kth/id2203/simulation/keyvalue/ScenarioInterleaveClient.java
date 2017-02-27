@@ -1,4 +1,4 @@
-package se.kth.id2203.simulation.client;
+package se.kth.id2203.simulation.keyvalue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

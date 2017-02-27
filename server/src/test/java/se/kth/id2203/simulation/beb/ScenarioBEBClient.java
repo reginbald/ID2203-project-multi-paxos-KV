@@ -13,6 +13,7 @@ import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
+import se.kth.id2203.simulation.keyvalue.ScenarioClient;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.ScheduleTimeout;
@@ -21,7 +22,7 @@ import se.sics.kompics.timer.Timer;
 
 public class ScenarioBEBClient extends ComponentDefinition {
 
-    final static Logger LOG = LoggerFactory.getLogger(se.kth.id2203.simulation.client.ScenarioClient.class);
+    final static Logger LOG = LoggerFactory.getLogger(ScenarioClient.class);
     //******* Ports ******
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Timer> timer = requires(Timer.class);

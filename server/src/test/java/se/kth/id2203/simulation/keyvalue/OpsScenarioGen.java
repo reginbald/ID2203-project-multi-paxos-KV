@@ -1,4 +1,4 @@
-package se.kth.id2203.simulation;
+package se.kth.id2203.simulation.keyvalue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import se.kth.id2203.ParentComponent;
 import se.kth.id2203.networking.NetAddress;
-import se.kth.id2203.simulation.client.ScenarioCasClient;
-import se.kth.id2203.simulation.client.ScenarioClient;
-import se.kth.id2203.simulation.client.ScenarioInterleaveClient;
-import se.kth.id2203.simulation.client.ScenarioPutClient;
 import se.sics.kompics.Init;
 import se.sics.kompics.network.Address;
 import se.sics.kompics.simulator.SimulationScenario;

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package se.kth.id2203.simulation.client;
+package se.kth.id2203.simulation.keyvalue;
 
 import java.util.Map;
 import java.util.TreeMap;

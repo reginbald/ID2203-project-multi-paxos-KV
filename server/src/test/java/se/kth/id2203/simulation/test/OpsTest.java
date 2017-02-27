@@ -25,7 +25,7 @@ package se.kth.id2203.simulation.test;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import se.kth.id2203.simulation.OpsScenarioGen;
+import se.kth.id2203.simulation.keyvalue.OpsScenarioGen;
 import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
 import se.sics.kompics.simulator.SimulationScenario;
