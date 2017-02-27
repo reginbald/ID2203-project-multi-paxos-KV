@@ -26,7 +26,8 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
     private final Map<UUID, String> pending = new TreeMap<>();
     private final Queue<Operation> queue = new LinkedList<>();
     private int counter = 1;
-    private boolean wait = false;
+    private boolean seven = false;
+    private boolean nine = false;
 
     //******* Handlers ******
     protected final Handler<Start> startHandler = new Handler<Start>() {
@@ -65,10 +66,10 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
             queue.add(new PutOperation("2", "1"));
 
             // GET OK value: 1
-            queue.add(new GetOperation("2"));
+            queue.add(new GetOperation("3"));
 
             // GET OK value: 1
-            queue.add(new GetOperation("3"));
+            queue.add(new GetOperation("2"));
 
         }
     };
@@ -76,59 +77,72 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
 
         @Override
         public void handle(OpResponse content, Message context) {
-            LOG.debug("Got OpResponse: {}", content);
-            String key = pending.remove(content.id);
-            if (key != null) {
-                res.put(key, "Status: " + content.status.toString() + " Data: "+ content.data);
-            } else {
-                LOG.warn("ID {} was not pending! Ignoring response.", content.id);
+        LOG.debug("Got OpResponse: {}", content);
+        String key = pending.remove(content.id);
+        if (key != null) {
+            res.put(key, "Status: " + content.status.toString() + " Data: "+ content.data);
+        } else {
+            LOG.warn("ID {} was not pending! Ignoring response.", content.id);
+        }
+        if(key.equals("7")) seven = true;
+        if(key.equals("9")) nine = true;
+        if (seven && counter == 7){ // concurrent PUT
+            PutOperation put = (PutOperation) queue.remove();
+            RouteMsg rm = new RouteMsg(put.key, put.value, put);
+            trigger(new Message(self, server, rm), net);
+            pending.put(put.id, "" + counter);
+            res.put("" + counter, "SENT");
+            counter++;
+
+            put = (PutOperation) queue.remove();
+            rm = new RouteMsg(put.key, put.value, put);
+            trigger(new Message(self, server, rm), net);
+            pending.put(put.id, "" + counter);
+            res.put("" + counter, "SENT");
+            counter++;
+            return;
+        }
+        if (nine && counter == 9){ // concurrent GET
+            GetOperation get = (GetOperation) queue.remove();
+            RouteMsg rm = new RouteMsg(get.key, get);
+            trigger(new Message(self, server, rm), net);
+            pending.put(get.id, ""+ counter);
+            res.put("" + counter, "SENT");
+            counter++;
+
+            get = (GetOperation) queue.remove();
+            rm = new RouteMsg(get.key, get);
+            trigger(new Message(self, server, rm), net);
+            pending.put(get.id, ""+ counter);
+            res.put("" + counter, "SENT");
+            counter++;
+            return;
+        }
+        if(!queue.isEmpty()){
+            Operation op = queue.remove();
+            if (op.getClass().equals(GetOperation.class)){
+                GetOperation get = (GetOperation) op;
+                RouteMsg rm = new RouteMsg(get.key, get);
+                trigger(new Message(self, server, rm), net);
+                pending.put(get.id, ""+ counter);
+                res.put("" + counter, "SENT");
+                counter++;
+            } else if (op.getClass().equals(PutOperation.class)) {
+                PutOperation put = (PutOperation) op;
+                RouteMsg rm = new RouteMsg(put.key, put.value, put);
+                trigger(new Message(self, server, rm), net);
+                pending.put(put.id, "" + counter);
+                res.put("" + counter, "SENT");
+                counter++;
+            } else if (op.getClass().equals(CasOperation.class)) {
+                CasOperation cas = (CasOperation) op;
+                RouteMsg rm = new RouteMsg(cas.key, cas.referenceValue, cas.newValue, cas);
+                trigger(new Message(self, server, rm), net);
+                pending.put(cas.id, "" + counter);
+                res.put("" + counter, "SENT");
+                counter++;
             }
-            if (wait) {
-                wait = false;
-                return;
-            }
-            if(!queue.isEmpty()){
-                Operation op = queue.remove();
-                if (op.getClass().equals(GetOperation.class)){
-                    GetOperation get = (GetOperation) op;
-                    RouteMsg rm = new RouteMsg(get.key, get);
-                    trigger(new Message(self, server, rm), net);
-                    pending.put(get.id, ""+ counter);
-                    res.put("" + counter, "SENT");
-                    counter++;
-                    if (counter == 10){
-                        get = (GetOperation) queue.remove();
-                        rm = new RouteMsg(get.key, get);
-                        trigger(new Message(self, server, rm), net);
-                        pending.put(get.id, ""+ counter);
-                        res.put("" + counter, "SENT");
-                        counter++;
-                    }
-                } else if (op.getClass().equals(PutOperation.class)) {
-                    PutOperation put = (PutOperation) op;
-                    RouteMsg rm = new RouteMsg(put.key, put.value, put);
-                    trigger(new Message(self, server, rm), net);
-                    pending.put(put.id, "" + counter);
-                    res.put("" + counter, "SENT");
-                    counter++;
-                    if (counter == 8){
-                        wait = true;
-                        put = (PutOperation) queue.remove();
-                        rm = new RouteMsg(put.key, put.value, put);
-                        trigger(new Message(self, server, rm), net);
-                        pending.put(put.id, "" + counter);
-                        res.put("" + counter, "SENT");
-                        counter++;
-                    }
-                } else if (op.getClass().equals(CasOperation.class)) {
-                    CasOperation cas = (CasOperation) op;
-                    RouteMsg rm = new RouteMsg(cas.key, cas.referenceValue, cas.newValue, cas);
-                    trigger(new Message(self, server, rm), net);
-                    pending.put(cas.id, "" + counter);
-                    res.put("" + counter, "SENT");
-                    counter++;
-                }
-            }
+        }
         }
     };
 
