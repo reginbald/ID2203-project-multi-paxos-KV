@@ -159,6 +159,19 @@ public class MultiPaxos extends ComponentDefinition {
                                 pv.add(object);
                             }
                         }
+                        // for all p ∈ Π such that readlist[p] ̸= ⊥ do
+                        for(NetAddress addr : nodes) {
+                            if(readlist.containsKey(addr)) {
+                                // l′ := decided[p];
+                                int lPrime = decided.get(addr);
+                                //trigger ⟨ fpl,Send | p,[Accept,pts,suffix(pv,l′),l′,t] ⟩;
+                                //LinkedList<Object> av2 = new LinkedList<>(av);
+                                //av2.add(p.acceptor_seq_length);
+                                LinkedList<Object> pv2 = new LinkedList<>(pv);
+                                pv2.add(lPrime);
+                                trigger(new PL_Send(addr, new Accept(pts,lPrime, pv2, t)), pLink);
+                            }
+                        }
                     }
                 }
             }
