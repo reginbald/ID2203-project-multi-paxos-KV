@@ -23,16 +23,16 @@ public class MultiPaxos extends ComponentDefinition {
     private int n;
     private int t; //logical clock
     private int prepts; //acceptor: prepared timestamp
-    private int ats, pts;
-    private List<Object> av, pv;
-    private int al, pl;
+    private int ats, pts; // acceptor timestamp, proposer timestamp
+    private List<Object> av, pv; // accepted seq, proposed seq
+    private int al, pl; // length of decided seq, length of learned seq
 
     Set<NetAddress> nodes;
 
     private List<Object> proposedValues;
     private HashMap<NetAddress, Tuple> readlist;
-    private HashMap<NetAddress, Integer> accepted;
-    private HashMap<NetAddress, Integer> decided;
+    private HashMap<NetAddress, Integer> accepted; //proposer’s knowledge about length of acceptor’s longest accepted seq
+    private HashMap<NetAddress, Integer> decided; //proposer’s knowledge about length of acceptor’s longest decided seq
 
 
     protected final Handler<Partition> initHandler = new Handler<Partition>(){
@@ -99,9 +99,13 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(PrepareAck p, PL_Deliver d) {
             LOG.info("PrepareAck: {}", p);
+            t = Math.max(t, p.timestamp); // TODO: is p.timestamp correct?
+
 
         }
     };
+
+
 
     {
         subscribe(initHandler, boot);
