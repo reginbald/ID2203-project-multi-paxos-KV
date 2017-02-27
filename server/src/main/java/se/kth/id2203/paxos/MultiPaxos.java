@@ -150,6 +150,15 @@ public class MultiPaxos extends ComponentDefinition {
                             // (ts′, vsuf ′) := (ts′′, vsuf ′′);
                             primeTuple = entryTuple;
                         }
+                        //pv := pv + vsuf ′;
+                        pv.add(vsufPrime); // TODO: correct ?
+                        //for all v ∈ proposedValues such that v ∈/ pv do
+                        for (Object object : proposedValues) {
+                            if(!(pv.contains(object))) {
+                                //pv := pv + ⟨v⟩;
+                                pv.add(object);
+                            }
+                        }
                     }
                 }
             }
