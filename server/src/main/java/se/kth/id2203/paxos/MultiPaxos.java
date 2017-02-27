@@ -7,6 +7,7 @@ import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.network.PL_Deliver;
 import se.kth.id2203.network.PL_Send;
 import se.kth.id2203.network.Partition;
+import se.kth.id2203.network.PerfectLink;
 import se.kth.id2203.networking.NetAddress;
 import se.sics.kompics.*;
 
@@ -17,6 +18,7 @@ public class MultiPaxos extends ComponentDefinition {
 
     protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
     protected final Negative<AbortableSequenceConsensus> asc = provides(AbortableSequenceConsensus.class);
+    protected final Positive<PerfectLink> pLink = requires(PerfectLink.class);
 
     private int n;
     private int t; //logical clock
@@ -68,7 +70,7 @@ public class MultiPaxos extends ComponentDefinition {
                     if(readlist.get(node) != null ){
                         List<Object> pVal = new ArrayList<>();
                         pVal.add(p.value);
-                        trigger(new PL_Send(node, new Accept(pts, pVal,pv.size() - 1,  )));
+                        trigger(new PL_Send(node, new Accept(t, pts, pVal,pv.size() - 1)), pLink);
 
                     }
                 }
