@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package se.kth.id2203.simulation.test;
+package se.kth.id2203.simulation.keyvalue;
 
 import junit.framework.Assert;
 import org.junit.Test;
@@ -92,6 +92,25 @@ public class OpsTest {
     }
 
     @Test
+    public void PartitionTest(){
+        long seed = 123;
+        SimulationScenario.setSeed(seed);
+        SimulationScenario simpleBootScenario = OpsScenarioGen.simpleOps(6, "INTERLEAVE");
+        simpleBootScenario.simulate(LauncherComp.class);
+        Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("0", String.class));
+        Assert.assertEquals("Status: NOT_FOUND Data: ", res.get("1", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("2", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("3", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("4", String.class));
+        Assert.assertEquals("Status: NO_MATCH Data: ", res.get("5", String.class));
+        Assert.assertEquals("Status: OK Data: 5", res.get("6", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("7", String.class));
+        Assert.assertEquals("Status: OK Data: ", res.get("8", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("9", String.class));
+        Assert.assertEquals("Status: OK Data: 1", res.get("10", String.class));
+    }
+
+    @Test
     public void AtomicityAndLinerizabilityTest() {
 
     }
@@ -100,4 +119,6 @@ public class OpsTest {
     public void TerminationTest() {
 
     }
+
+
 }
