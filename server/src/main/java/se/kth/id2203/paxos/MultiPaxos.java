@@ -26,7 +26,7 @@ public class MultiPaxos extends ComponentDefinition {
     private int t; //logical clock
     private int prepts; //acceptor: prepared timestamp
     private int ats, pts; // acceptor timestamp, proposer timestamp
-    private List<Object> av, pv; // accepted seq, proposed seq
+    private LinkedList<Object> av, pv; // accepted seq, proposed seq
     private int al, pl; // length of decided seq, length of learned seq
 
     Set<NetAddress> nodes;
