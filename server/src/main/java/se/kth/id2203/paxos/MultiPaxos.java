@@ -170,7 +170,17 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Accept p, PL_Deliver d) {
             LOG.info("Accept: {}", p);
-
+            t = Math.max(t,p.timestamp) + 1;
+            if (p.proposer_timestamp != prepts){
+                trigger(new PL_Send(d.src, new NACK(t, p.proposer_timestamp)), pLink);
+            } else {
+                ats = p.proposer_timestamp;
+                if (p.proposer_seq_length < av.size()) {
+                    av.push(p.proposer_seq_length);
+                }
+                av.addAll(p.acceptor_seq);
+                trigger(new PL_Send(d.src, new AcceptAck(t, av.size(), p.proposer_timestamp )), pLink);
+            }
         }
     };
 
