@@ -8,15 +8,18 @@ import java.io.Serializable;
 public class Propose implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 117L;
 
+    public final Object key;
     public final Object value;
 
-    public Propose(Object value) {
+    public Propose(Object key, Object value) {
+        this.key = key;
         this.value = value;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("key", value)
                 .add("value", value)
                 .toString();
     }

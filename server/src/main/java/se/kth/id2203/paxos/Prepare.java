@@ -8,11 +8,14 @@ import java.io.Serializable;
 public class Prepare implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 115L;
 
+    public final Object key;
+
     public final int timestamp;
     public final int acceptor_seq_length;
     public final int proposer_timestamp;
 
-    public Prepare(int timestamp, int acceptor_seq_length, int proposer_timestamp) {
+    public Prepare(Object key, int timestamp, int acceptor_seq_length, int proposer_timestamp) {
+        this.key = key;
         this.timestamp = timestamp;
         this.acceptor_seq_length = acceptor_seq_length;
         this.proposer_timestamp = proposer_timestamp;
@@ -21,6 +24,7 @@ public class Prepare implements KompicsEvent, Serializable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("key", key)
                 .add("timestamp", timestamp)
                 .add("acceptor_seq_length", acceptor_seq_length)
                 .add("proposer_timestamp", proposer_timestamp)
