@@ -34,6 +34,7 @@ public class BEBObserver extends ComponentDefinition {
     private final int aliveNodes;
     private boolean stop = false;
     private NetAddress kill;
+    private Set<NetAddress> partition;
 
     private UUID timerId;
 
@@ -62,13 +63,13 @@ public class BEBObserver extends ComponentDefinition {
         public void handle(CheckTimeout event) {
             GlobalView gv = config().getValue("simulation.globalview", GlobalView.class);
 
-            if(!stop && gv.getAliveNodes().size() >= aliveNodes) {
-                LOG.info("ALIVE - " + aliveNodes);
-                if (kill != null){
-                    //Todo kill a node
-                }
+            if(gv.getDeadNodes().size() == 1) {
+                LOG.info("DEAD - " + gv.getDeadNodes().size());
+            }
+            if(!stop && gv.getAliveNodes().size() == aliveNodes) {
+                LOG.info("ALIVE - " + gv.getAliveNodes().size());
 
-                Set<NetAddress> partition = new HashSet<>();
+                partition = new HashSet<>();
                 for (Address a : gv.getAliveNodes().values()) {
                     NetAddress netAddress = new NetAddress(a.getIp(), a.getPort());
                     try {
@@ -83,7 +84,7 @@ public class BEBObserver extends ComponentDefinition {
                 for (NetAddress addr : partition) {
                     trigger(new Message(null, addr, new Partition(partition)), network);
                 }
-                //gv.terminate();
+                //
                 stop = true;
             }
         }

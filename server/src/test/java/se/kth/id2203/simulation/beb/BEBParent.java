@@ -28,5 +28,7 @@ public class BEBParent extends ComponentDefinition {
         connect(net, perfectLink.getNegative(Network.class), Channel.TWO_WAY);
         //two way connect bebClient to net port
         connect(net, bebClient.getNegative(Network.class), Channel.TWO_WAY);
+
+        connect(timer, bebClient.getNegative(Timer.class), Channel.TWO_WAY);
     }
 }

@@ -145,10 +145,9 @@ public abstract class BEBScenarioGen {
         public KillNodeEvent generate(final Integer self) {
             return new KillNodeEvent() {
                 NetAddress selfAdr;
-
                 {
                     try {
-                        selfAdr = new NetAddress(InetAddress.getByName("192.168.0.1"), 45678);
+                        selfAdr = new NetAddress(InetAddress.getByName("192.168.0." + self), 45678);
                     } catch (UnknownHostException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -213,13 +212,13 @@ public abstract class BEBScenarioGen {
                 SimulationScenario.StochasticProcess killer = new SimulationScenario.StochasticProcess() {
                     {
                         eventInterArrivalTime(constant(0));
-                        raise(5, killOp, new BasicIntSequentialDistribution((1)));
+                        raise(1, killOp, new BasicIntSequentialDistribution((1)));
                     }
                 };
 
                 killobserver.start();
-                servers.startAfterTerminationOf(0, killobserver);
-                killer.startAfterTerminationOf(0, servers);
+                servers.startAfterTerminationOf(1000, killobserver);
+                killer.startAfterTerminationOf(1000, servers);
                 terminateAfterTerminationOf(10000, killobserver);
             }
         };
