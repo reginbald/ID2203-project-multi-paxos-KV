@@ -9,5 +9,6 @@ public class AbortableSequenceConsensus extends PortType {
 
         //Output to the port
         indication(Decide.class);
+        indication(Abort.class);
     }
 }
