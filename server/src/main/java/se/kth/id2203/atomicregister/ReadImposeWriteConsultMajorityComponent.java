@@ -10,6 +10,8 @@ import se.sics.kompics.*;
 import se.sics.kompics.network.Address;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition {
@@ -35,7 +37,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
 
     HashMap<Address, Tuple> readlist = new HashMap<>();
 
-    Stack<KompicsEvent> stack = new Stack<>();
+    Queue<KompicsEvent> queue = new LinkedList<>();
 
     boolean reading = false;
     boolean write = false;
@@ -70,7 +72,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         public void handle(AR_Read_Request readRequest) {
             LOG.info("Read Request handler");
             if(reading || write || cas){ // push to stack
-                stack.push(readRequest);
+                queue.add(readRequest);
                 return;
             }
 
@@ -87,7 +89,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         public void handle(AR_Write_Request writeRequest) {
             LOG.info("Write Request handler");
             if(reading || write || cas){ // push to stack
-                stack.push(writeRequest);
+                queue.add(writeRequest);
                 return;
             }
             write = true;
@@ -104,7 +106,7 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
         public void handle(AR_CAS_Request request) {
             LOG.info("CAS Request handler");
             if(reading || write || cas){ // push to stack
-                stack.push(request);
+                queue.add(request);
                 return;
             }
             cas = true;
@@ -166,12 +168,12 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                             } else { // reference value does not match actual value
                                 trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
                                 cas = false;
-                                if(!stack.empty()) trigger(stack.pop(), nnar2);
+                                if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                             }
                         } else { // Key not in store
                             trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
                             cas = false;
-                            if(!stack.empty()) trigger(stack.pop(), nnar2);
+                            if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                         }
                     } else {
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
@@ -192,15 +194,15 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         reading = false;
                         trigger(new AR_Read_Response(v.request_id, v.request_source, readval), nnar);
-                        if(!stack.empty()) trigger(stack.pop(), nnar2);
+                        if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                     } else if (cas) {
                         cas = false;
                         trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.OK), nnar);
-                        if(!stack.empty()) trigger(stack.pop(), nnar2);
+                        if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                     } else {
                         write = false;
                         trigger(new AR_Write_Response(v.request_id, v.request_source), nnar);
-                        if(!stack.empty()) trigger(stack.pop(), nnar2);
+                        if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                     }
                 }
             }

@@ -39,7 +39,7 @@ public class ScenarioBEBClient extends ComponentDefinition {
         @Override
         public void handle(READ r, BEB_Deliver b) {
             LOG.debug("Got BEB_Deliver: {}", r);
-            res.put(self.toString(), ++counter);
+            res.put(self.toString()+"got", ++counter);
         }
     };
 
@@ -49,8 +49,8 @@ public class ScenarioBEBClient extends ComponentDefinition {
         public void handle(Partition content, Message context) {
             LOG.debug("Got partition: {}", content);
             trigger(content, boot);
+            res.put(self.toString()+"sent", 1);
             trigger(new BEB_Broadcast(new READ(UUID.randomUUID(), self, "1", 1)), beb);
-            trigger(new Message(self, self, new PL_Deliver(self, new BEB_Broadcast(new READ(UUID.randomUUID(), self, "1", 1)))), net);
         }
     };
 

@@ -33,11 +33,13 @@ public class BEBObserver extends ComponentDefinition {
 
     private final int aliveNodes;
     private boolean stop = false;
+    private NetAddress kill;
 
     private UUID timerId;
 
     public BEBObserver(Init init) {
         aliveNodes = init.aliveNodes;
+        kill = init.kill;
 
         subscribe(handleStart, control);
         subscribe(handleCheck, timer);
@@ -62,6 +64,10 @@ public class BEBObserver extends ComponentDefinition {
 
             if(!stop && gv.getAliveNodes().size() >= aliveNodes) {
                 LOG.info("ALIVE - " + aliveNodes);
+                if (kill != null){
+                    //Todo kill a node
+                }
+
                 Set<NetAddress> partition = new HashSet<>();
                 for (Address a : gv.getAliveNodes().values()) {
                     NetAddress netAddress = new NetAddress(a.getIp(), a.getPort());
@@ -86,9 +92,15 @@ public class BEBObserver extends ComponentDefinition {
     public static class Init extends se.sics.kompics.Init<BEBObserver> {
 
         public final int aliveNodes;
+        public final NetAddress kill;
 
         public Init(int aliveNodes) {
             this.aliveNodes = aliveNodes;
+            kill = null;
+        }
+        public Init(int aliveNodes, NetAddress kill) {
+            this.aliveNodes = aliveNodes;
+            this.kill = kill;
         }
     }
 

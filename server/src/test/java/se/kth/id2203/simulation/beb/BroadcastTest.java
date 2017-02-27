@@ -13,45 +13,41 @@ public class BroadcastTest extends ComponentDefinition {
     private final SimulationResultMap res = SimulationResultSingleton.getInstance();
 
     @Test
-    public void BestEffortValidityTest() {
+    public void AllNodesAreCorrect() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
         SimulationScenario simpleBootScenario = BEBScenarioGen.broadcastScenario();
         simpleBootScenario.simulate(LauncherComp.class);
 
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.1:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.2:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.3:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.4:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.5:45678", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.1:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.2:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.3:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.4:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.5:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.1:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.2:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.3:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.4:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.5:45678got", Integer.class));
     }
 
     @Test
-    public void NoDuplicationTest() {
+    public void CrashOneBroadcaster() {
         long seed = 123;
         SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = BEBScenarioGen.broadcastScenario();
+        SimulationScenario simpleBootScenario = BEBScenarioGen.broadcastKillScenario();
         simpleBootScenario.simulate(LauncherComp.class);
 
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.1:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.2:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.3:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.4:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.5:45678", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.1:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.2:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.3:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.4:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(1), res.get("/192.168.0.5:45678sent", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.1:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.2:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.3:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.4:45678got", Integer.class));
+        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.5:45678got", Integer.class));
     }
 
-    @Test
-    public void NoCreationTest(){
-        long seed = 123;
-        SimulationScenario.setSeed(seed);
-        SimulationScenario simpleBootScenario = BEBScenarioGen.broadcastScenario();
-        simpleBootScenario.simulate(LauncherComp.class);
-
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.1:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.2:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.3:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.4:45678", Integer.class));
-        junit.framework.Assert.assertEquals(new Integer(5), res.get("/192.168.0.5:45678", Integer.class));
-
-    }
 }
