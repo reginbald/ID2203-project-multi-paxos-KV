@@ -86,7 +86,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
         }
         if(key.equals("7")) seven = true;
         if(key.equals("9")) nine = true;
-        if (seven && counter == 7){
+        if (seven && counter == 7){ // concurrent PUT
             PutOperation put = (PutOperation) queue.remove();
             RouteMsg rm = new RouteMsg(put.key, put.value, put);
             trigger(new Message(self, server, rm), net);
@@ -102,7 +102,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
             counter++;
             return;
         }
-        if (nine && counter == 9){
+        if (nine && counter == 9){ // concurrent GET
             GetOperation get = (GetOperation) queue.remove();
             RouteMsg rm = new RouteMsg(get.key, get);
             trigger(new Message(self, server, rm), net);
