@@ -141,13 +141,14 @@ public class MultiPaxos extends ComponentDefinition {
                     // (ts′, vsuf ′) := (0, ⟨⟩);
                     List<Object> vsufPrime = new ArrayList<>();
                     int tsPrime = 0;
-                    Tuple tuple = new Tuple(tsPrime, vsufPrime);
+                    Tuple primeTuple = new Tuple(tsPrime, vsufPrime);
                     // for all (ts′′, vsuf ′′) ∈ readlist do
                     for(Map.Entry<NetAddress,Tuple> entry : readlist.entrySet()) {
                         //if ts′ < ts′′ || ( ts′ = ts′′ && #(vsuf ′) < #(vsuf ′′)  then
                         Tuple entryTuple = entry.getValue();
                         if((tsPrime < entryTuple.ts) || (tsPrime == entryTuple.ts && vsufPrime.size() < entryTuple.sequence.size())) {
-
+                            // (ts′, vsuf ′) := (ts′′, vsuf ′′);
+                            primeTuple = entryTuple;
                         }
                     }
                 }
