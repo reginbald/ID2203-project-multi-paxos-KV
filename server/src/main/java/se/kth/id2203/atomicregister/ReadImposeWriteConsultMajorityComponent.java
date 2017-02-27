@@ -162,16 +162,15 @@ public class ReadImposeWriteConsultMajorityComponent extends ComponentDefinition
                     if (reading){
                         trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts, max.wr, readval)), beb);
                     } else if(cas){
-                        if (store.containsKey(v.key)){
-                            if (referenceValue.equals(store.get(v.key))){
-                                trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
-                            } else { // reference value does not match actual value
-                                trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
-                                cas = false;
-                                if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
-                            }
-                        } else { // Key not in store
+                        if (readval == null){
                             trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NOT_FOUND), nnar);
+                            cas = false;
+                            if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
+                        }
+                        else if (referenceValue.equals(readval)){
+                            trigger(new BEB_Broadcast(new WRITE(v.request_id, v.request_source, v.key, rid, max.ts + 1, selfRank, writeval)), beb);
+                        } else { // reference value does not match actual value
+                            trigger(new AR_CAS_Response(v.request_id, v.request_source, OpResponse.Code.NO_MATCH), nnar);
                             cas = false;
                             if(!queue.isEmpty()) trigger(queue.remove(), nnar2);
                         }
