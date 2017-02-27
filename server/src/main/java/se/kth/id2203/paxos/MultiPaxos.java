@@ -156,7 +156,29 @@ public class MultiPaxos extends ComponentDefinition {
         }
     };
 
+    protected final ClassMatchedHandler<Accept, PL_Deliver> acceptHandler = new ClassMatchedHandler<Accept, PL_Deliver>() {
+        @Override
+        public void handle(Accept p, PL_Deliver d) {
+            LOG.info("Accept: {}", p);
 
+        }
+    };
+
+    protected final ClassMatchedHandler<AcceptAck, PL_Deliver> acceptAckHandler = new ClassMatchedHandler<AcceptAck, PL_Deliver>() {
+        @Override
+        public void handle(AcceptAck p, PL_Deliver d) {
+            LOG.info("AcceptAck: {}", p);
+
+        }
+    };
+
+    protected final ClassMatchedHandler<Decide, PL_Deliver> decideHandler = new ClassMatchedHandler<Decide, PL_Deliver>() {
+        @Override
+        public void handle(Decide p, PL_Deliver d) {
+            LOG.info("AcceptAck: {}", p);
+
+        }
+    };
 
     {
         subscribe(initHandler, boot);
