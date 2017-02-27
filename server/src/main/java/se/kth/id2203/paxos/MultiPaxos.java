@@ -165,13 +165,23 @@ public class MultiPaxos extends ComponentDefinition {
                                 // l′ := decided[p];
                                 int lPrime = decided.get(addr);
                                 //trigger ⟨ fpl,Send | p,[Accept,pts,suffix(pv,l′),l′,t] ⟩;
-                                //LinkedList<Object> av2 = new LinkedList<>(av);
-                                //av2.add(p.acceptor_seq_length);
                                 LinkedList<Object> pv2 = new LinkedList<>(pv);
                                 pv2.add(lPrime);
                                 trigger(new PL_Send(addr, new Accept(pts,lPrime, pv2, t)), pLink);
                             }
                         }
+                    }
+                }
+                // else if #(readlist) > ⌊N/2⌋ + 1 then
+                else if (readlist.size() > (Math.floor(n/2) + 1)) {
+                    //trigger ⟨ fpl,Send | q,[Accept,pts,suffix(pv,l),l,t] ⟩;
+                    LinkedList<Object> pv2 = new LinkedList<>(pv);
+                    pv2.add(p.acceptor_seq_length);
+                    trigger(new PL_Send(d.src, new Accept(pts, p.acceptor_seq_length, pv2, t)), pLink);
+                    //if pl ̸= 0 then
+                    if (pl != 0) {
+                        // trigger ⟨ fpl, Send | q, [Decide, pts, pl, t] ⟩;
+                        trigger(new PL_Send(d.src, new Decide(pts, pl, t)), pLink);
                     }
                 }
             }
