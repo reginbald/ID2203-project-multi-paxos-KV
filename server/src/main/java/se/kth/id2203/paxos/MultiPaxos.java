@@ -99,8 +99,26 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(PrepareAck p, PL_Deliver d) {
             LOG.info("PrepareAck: {}", p);
-            t = Math.max(t, p.timestamp); // TODO: is p.timestamp correct?
+            t = Math.max(t, p.timestamp) + 1; // TODO: is p.timestamp correct?
+            //if pts′= pts then
+            //pts = proposer timestamp
+            if(p.proposer_timestamp == pts) {
+                //readlist[q] := (ts, vsuf );
+                // decided[q] := l;
+                readlist.put(d.src, new Tuple(p.timestamp, p.acceptor_seq));
+                // decided[q] := l;
+                decided.put(d.src, p.acceptor_seq_length);
+                //if #(readlist) = ⌊N/2⌋ + 1 then
+                if (readlist.size() == (Math.floor(n/2)+1)) {
+                    // (ts′, vsuf ′) := (0, ⟨⟩);
+                    List<Object> vsufPrime = new ArrayList<>();
+                    Tuple tuple = new Tuple(0, vsufPrime);
+                    // for all (ts′′, vsuf ′′) ∈ readlist do
+                    for(Map.Entry<NetAddress,Tuple> entry : readlist.entrySet()) {
 
+                    }
+                }
+            }
 
         }
     };
