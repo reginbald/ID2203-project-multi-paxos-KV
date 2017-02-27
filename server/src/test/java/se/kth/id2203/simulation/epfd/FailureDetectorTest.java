@@ -1,8 +1,11 @@
-package se.kth.id2203.simulation.test;
+package se.kth.id2203.simulation.epfd;
 
 import org.junit.Test;
 import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
+import se.kth.id2203.simulation.beb.BEBScenarioGen;
+import se.sics.kompics.simulator.SimulationScenario;
+import se.sics.kompics.simulator.run.LauncherComp;
 
 public class FailureDetectorTest {
 
@@ -11,7 +14,11 @@ public class FailureDetectorTest {
 
     @Test
     public void StrongCompletenessTest() {
-        // Eventually, every process that crashes is perma- nently suspected by every correct process.
+        // Eventually, every process that crashes is permanently suspected by every correct process.
+        long seed = 123;
+        SimulationScenario.setSeed(seed);
+        SimulationScenario simpleBootScenario = EPFDScenarioGen.simpleEPFD(3);
+        simpleBootScenario.simulate(LauncherComp.class);
     }
 
     @Test
