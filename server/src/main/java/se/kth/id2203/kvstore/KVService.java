@@ -30,6 +30,7 @@ import se.kth.id2203.kvstore.OpResponse.Code;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.overlay.Routing;
+import se.kth.id2203.paxos.Abort;
 import se.kth.id2203.paxos.AbortableSequenceConsensus;
 import se.kth.id2203.paxos.DECIDE_RESPONSE;
 import se.kth.id2203.paxos.Propose;
@@ -136,6 +137,17 @@ public class KVService extends ComponentDefinition {
                     trigger(new Message(self, cas.request_source,new OpResponse(cas.request_id, Code.NO_MATCH, "")), net);
                 }
             }
+        }
+
+    };
+
+    // Used in Paxos implementation
+    protected final Handler<Abort> abortHandler = new Handler<Abort>() {
+
+        @Override
+        public void handle(Abort abort) {
+            // Todo: whut?
+            //trigger(new Message(self, abort.request_source,new OpResponse(cas.request_id, Code.NO_MATCH, "")), net);
         }
 
     };

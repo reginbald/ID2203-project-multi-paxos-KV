@@ -4,17 +4,17 @@ import com.google.common.base.MoreObjects;
 import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.List;
 
 public class Accept implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 111L;
 
     public final int ts;
-    public final LinkedList<KompicsEvent> vsuf;
+    public final List<KompicsEvent> vsuf;
     public final int offs;
     public final int tPrime;
 
-    public Accept(int ts, LinkedList<KompicsEvent> vsuf, int offs, int tPrime) {
+    public Accept(int ts, List<KompicsEvent> vsuf, int offs, int tPrime) {
         this.ts = ts;
         this.vsuf = vsuf;
         this.offs = offs;
