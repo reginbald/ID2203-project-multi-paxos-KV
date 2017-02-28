@@ -8,22 +8,22 @@ import java.io.Serializable;
 public class Decide implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 113L;
 
-    public final int timestamp;
-    public final int proposer_timestamp;
-    public final int proposer_seq_length;
+    public final int pts;
+    public final int pl;
+    public final int t;
 
-    public Decide(int timestamp, int proposer_timestamp, int proposer_seq_length) {
-        this.timestamp = timestamp;
-        this.proposer_timestamp = proposer_timestamp;
-        this.proposer_seq_length = proposer_seq_length;
+    public Decide(int pts, int pl, int t) {
+        this.pts = pts;
+        this.pl = pl;
+        this.t = t;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("timestamp", timestamp)
-                .add("proposer_timestamp", proposer_timestamp)
-                .add("proposer_seq_length", proposer_seq_length)
+                .add("pts", pts)
+                .add("pl", pl)
+                .add("t", t)
                 .toString();
     }
 }

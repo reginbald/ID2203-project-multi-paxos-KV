@@ -137,14 +137,22 @@ public class MultiPaxos extends ComponentDefinition {
                             primeTuple = new Tuple(entry.ts, entry.sequence);
                         }
                     }
+                    pv.addAll(primeTuple.sequence);
+                    for (KompicsEvent v : proposedValues) {
+                        if (!pv.contains(v)){
+                            pv.add(v);
+                        }
+                    }
+                    for (NetAddress node : nodes) {
+                        if(readlist.get(node) != null){
+                            int lprime = decided.get(node);
+                            trigger(new PL_Send(node, new Accept(pts, suffix(pv, lprime), lprime, t)), pLink);
+                        }
+                    }
                 }
-                // else if #(readlist) > ⌊N/2⌋ + 1 then
                 else if (readlist.size() > (Math.floor(n/2) + 1)) {
-                    //trigger ⟨ fpl,Send | q,[Accept,pts,suffix(pv,l),l,t] ⟩;
-                    trigger(new PL_Send(d.src, new Accept(pts, p.acceptor_seq_length, suffix(pv, p.acceptor_seq_length), t)), pLink);
-                    //if pl ̸= 0 then
+                    trigger(new PL_Send(d.src, new Accept(pts, suffix(pv, p.al), p.al, t)), pLink);
                     if (pl != 0) {
-                        // trigger ⟨ fpl, Send | q, [Decide, pts, pl, t] ⟩;
                         trigger(new PL_Send(d.src, new Decide(pts, pl, t)), pLink);
                     }
                 }
@@ -157,16 +165,16 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Accept p, PL_Deliver d) {
             LOG.info("Accept: {}", p);
-            t = Math.max(t,p.timestamp) + 1;
-            if (p.proposer_timestamp != prepts){
-                trigger(new PL_Send(d.src, new NACK(t, p.proposer_timestamp)), pLink);
+            t = Math.max(t, p.t) + 1;
+            if (p.pts != prepts){
+                trigger(new PL_Send(d.src, new NACK(p.pts, t)), pLink);
             } else {
-                ats = p.proposer_timestamp;
-                if (p.proposer_seq_length < av.size()) {
-                    av = prefix(av, p.proposer_seq_length);
+                ats = p.pts;
+                if (p.pv_length < av.size()) {
+                    av = prefix(av, p.pv_length);
                 }
-                av.addAll(p.acceptor_seq);
-                trigger(new PL_Send(d.src, new AcceptAck(t, av.size(), p.proposer_timestamp )), pLink);
+                av.addAll(p.v);
+                trigger(new PL_Send(d.src, new AcceptAck(p.pts, av.size() - 1, t)), pLink);
             }
         }
     };
@@ -175,20 +183,21 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(AcceptAck p, PL_Deliver d) {
             LOG.info("AcceptAck: {}", p);
-            t = Math.max(t, p.timestamp) + 1;
-            if (p.proposer_timestamp == pts){
-                accepted.put(d.src, p.acceptor_seq_length);
+            t = Math.max(t, p.t) + 1;
+            if (p.ts == pts){
+                accepted.put(d.src, p.av_length);
                 int nal = 0;
                 for (NetAddress node : nodes) {
-                    if(accepted.get(node) >= p.acceptor_seq_length){
+                    Integer ac = accepted.get(node);
+                    if(ac != null && ac >= p.av_length){
                         nal++;
                     }
                 }
-                if(pl < p.acceptor_seq_length && nal > Math.floor(n/2)){
-                    pl = p.acceptor_seq_length;
+                if(pl < p.av_length && nal > Math.floor(n/2)){
+                    pl = p.av_length;
                     for (NetAddress node : nodes) {
                         if (readlist.get(node) != null){
-                            trigger(new PL_Send(node, new Decide(t,pts, pl)), pLink);
+                            trigger(new PL_Send(node, new Decide(pts, pl ,t)), pLink);
                         }
                     }
                 }
@@ -200,9 +209,9 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Decide p, PL_Deliver d) {
             LOG.info("decide: {}", p);
-            t = Math.max(t, p.timestamp) + 1;
-            if (p.proposer_timestamp == prepts ){
-                while (al < p.proposer_seq_length) {
+            t = Math.max(t, p.t) + 1;
+            if (p.pts == prepts ){
+                while (al < p.pl) {
                     trigger(new DECIDE_RESPONSE(av.get(al)), asc);
                     al = al + 1;
                 }

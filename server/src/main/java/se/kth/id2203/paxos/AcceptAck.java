@@ -8,22 +8,22 @@ import java.io.Serializable;
 public class AcceptAck implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 112L;
 
-    public final int timestamp;
-    public final int acceptor_seq_length;
-    public final int proposer_timestamp;
+    public final int ts;
+    public final int av_length;
+    public final int t;
 
-    public AcceptAck(int timestamp, int acceptor_seq_length, int proposer_timestamp) {
-        this.timestamp = timestamp;
-        this.acceptor_seq_length = acceptor_seq_length;
-        this.proposer_timestamp = proposer_timestamp;
+    public AcceptAck(int ts, int av_length, int t) {
+        this.ts = ts;
+        this.av_length = av_length;
+        this.t = t;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("timestamp", timestamp)
-                .add("acceptor_seq_length", acceptor_seq_length)
-                .add("proposer_timestamp", proposer_timestamp)
+                .add("ts", ts)
+                .add("av_length", av_length)
+                .add("t", t)
                 .toString();
     }
 }
