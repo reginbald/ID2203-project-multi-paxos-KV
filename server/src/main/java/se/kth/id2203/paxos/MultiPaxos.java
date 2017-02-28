@@ -26,12 +26,12 @@ public class MultiPaxos extends ComponentDefinition {
     private int t; //logical clock
     private int prepts; //acceptor: prepared timestamp
     private int ats, pts; // acceptor timestamp, proposer timestamp
-    private LinkedList<Object> av, pv; // accepted seq, proposed seq
+    private LinkedList<KompicsEvent> av, pv; // accepted seq, proposed seq
     private int al, pl; // length of decided seq, length of learned seq
 
     Set<NetAddress> nodes;
 
-    List<Object>proposedValues;
+    List<KompicsEvent>proposedValues;
     private HashMap<NetAddress, Tuple> readlist;
     private HashMap<NetAddress, Integer> accepted; //proposer’s knowledge about length of acceptor’s longest accepted seq
     private HashMap<NetAddress, Integer> decided; //proposer’s knowledge about length of acceptor’s longest decided seq
@@ -65,8 +65,7 @@ public class MultiPaxos extends ComponentDefinition {
             t++;
             if(pts == 0){
                 pts = t * n + selfRank;
-                pv = new LinkedList<>(av);
-                pv.push(al);
+                pv = prefix(av, al);
                 pl = 0;
                 proposedValues.add(p.value);
                 readlist = new HashMap<>();
@@ -82,7 +81,7 @@ public class MultiPaxos extends ComponentDefinition {
                 pv.add(p.value);
                 for (NetAddress node : nodes) {
                     if(readlist.get(node) != null ){
-                        LinkedList<Object> pVal = new LinkedList<>();
+                        LinkedList<KompicsEvent> pVal = new LinkedList<>();
                         pVal.add(p.value);
                         trigger(new PL_Send(node, new Accept(t, pts, pVal,pv.size() - 1)), pLink);
 
@@ -103,9 +102,7 @@ public class MultiPaxos extends ComponentDefinition {
             }
             else {
                 prepts = p.proposer_timestamp;
-                LinkedList<Object> av2 = new LinkedList<>(av);
-                av2.add(p.acceptor_seq_length);
-                trigger(new PL_Send(d.src, new PrepareAck(t, ats, av2, al, p.proposer_timestamp)), pLink);
+                trigger(new PL_Send(d.src, new PrepareAck(t, ats, suffix(av, p.acceptor_seq_length), al, p.proposer_timestamp)), pLink);
             }
         }
     };
@@ -138,7 +135,7 @@ public class MultiPaxos extends ComponentDefinition {
                 //if #(readlist) = ⌊N/2⌋ + 1 then
                 if (readlist.size() == (Math.floor(n/2)+1)) {
                     // (ts′, vsuf ′) := (0, ⟨⟩);
-                    List<Object> vsufPrime = new ArrayList<>();
+                    LinkedList<KompicsEvent> vsufPrime = new LinkedList<>();
                     int tsPrime = 0;
                     Tuple primeTuple = new Tuple(tsPrime, vsufPrime);
                     // for all (ts′′, vsuf ′′) ∈ readlist do
@@ -150,9 +147,9 @@ public class MultiPaxos extends ComponentDefinition {
                             primeTuple = entryTuple;
                         }
                         //pv := pv + vsuf ′;
-                        pv.add(vsufPrime); // TODO: correct ?
+                        pv.addAll(vsufPrime); // TODO: correct ?
                         //for all v ∈ proposedValues such that v ∈/ pv do
-                        for (Object object : proposedValues) {
+                        for (KompicsEvent object : proposedValues) {
                             if(!(pv.contains(object))) {
                                 //pv := pv + ⟨v⟩;
                                 pv.add(object);
@@ -164,9 +161,7 @@ public class MultiPaxos extends ComponentDefinition {
                                 // l′ := decided[p];
                                 int lPrime = decided.get(addr);
                                 //trigger ⟨ fpl,Send | p,[Accept,pts,suffix(pv,l′),l′,t] ⟩;
-                                LinkedList<Object> pv2 = new LinkedList<>(pv);
-                                pv2.add(lPrime);
-                                trigger(new PL_Send(addr, new Accept(pts,lPrime, pv2, t)), pLink);
+                                trigger(new PL_Send(addr, new Accept(pts,lPrime, suffix(pv, lPrime), t)), pLink);
                             }
                         }
                     }
@@ -174,9 +169,7 @@ public class MultiPaxos extends ComponentDefinition {
                 // else if #(readlist) > ⌊N/2⌋ + 1 then
                 else if (readlist.size() > (Math.floor(n/2) + 1)) {
                     //trigger ⟨ fpl,Send | q,[Accept,pts,suffix(pv,l),l,t] ⟩;
-                    LinkedList<Object> pv2 = new LinkedList<>(pv);
-                    pv2.add(p.acceptor_seq_length);
-                    trigger(new PL_Send(d.src, new Accept(pts, p.acceptor_seq_length, pv2, t)), pLink);
+                    trigger(new PL_Send(d.src, new Accept(pts, p.acceptor_seq_length, suffix(pv, p.acceptor_seq_length), t)), pLink);
                     //if pl ̸= 0 then
                     if (pl != 0) {
                         // trigger ⟨ fpl, Send | q, [Decide, pts, pl, t] ⟩;
@@ -198,7 +191,7 @@ public class MultiPaxos extends ComponentDefinition {
             } else {
                 ats = p.proposer_timestamp;
                 if (p.proposer_seq_length < av.size()) {
-                    av.push(p.proposer_seq_length);
+                    av = prefix(av, p.proposer_seq_length);
                 }
                 av.addAll(p.acceptor_seq);
                 trigger(new PL_Send(d.src, new AcceptAck(t, av.size(), p.proposer_timestamp )), pLink);
@@ -250,12 +243,22 @@ public class MultiPaxos extends ComponentDefinition {
         subscribe(proposeHandler, asc);
     }
 
+    private LinkedList<KompicsEvent> prefix(LinkedList<KompicsEvent> sequence, int length ){
+        LinkedList<KompicsEvent> out = new LinkedList<>(sequence.subList(0,  length));
+        return out;
+    }
+
+    private LinkedList<KompicsEvent> suffix(LinkedList<KompicsEvent> sequence, int length ){
+        LinkedList<KompicsEvent> out = new LinkedList<>(sequence.subList(length,  sequence.size()));
+        return out;
+    }
+
     static class Tuple {
 
         public final int ts;
-        public final List<Object> sequence;
+        public final LinkedList<KompicsEvent> sequence;
 
-        public Tuple(int ts, List<Object> sequence) {
+        public Tuple(int ts, LinkedList<KompicsEvent> sequence) {
             this.ts = ts;
             this.sequence = sequence;
         }

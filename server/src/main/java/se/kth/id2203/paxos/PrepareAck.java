@@ -12,11 +12,11 @@ public class PrepareAck implements KompicsEvent, Serializable {
 
     public final int timestamp;
     public final int acceptor_timestamp;
-    public final LinkedList<Object> acceptor_seq;
+    public final LinkedList<KompicsEvent> acceptor_seq;
     public final int acceptor_seq_length;
     public final int proposer_timestamp;
 
-    public PrepareAck(int timestamp, int acceptor_timestamp, LinkedList<Object> acceptor_seq, int acceptor_seq_length, int proposer_timestamp) {
+    public PrepareAck(int timestamp, int acceptor_timestamp, LinkedList<KompicsEvent> acceptor_seq, int acceptor_seq_length, int proposer_timestamp) {
         this.timestamp = timestamp;
         this.acceptor_timestamp = acceptor_timestamp;
         this.acceptor_seq = acceptor_seq;

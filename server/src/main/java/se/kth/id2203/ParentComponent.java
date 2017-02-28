@@ -15,6 +15,8 @@ import se.kth.id2203.network.PerfectLinkComponent;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.overlay.Routing;
 import se.kth.id2203.overlay.VSOverlayManager;
+import se.kth.id2203.paxos.AbortableSequenceConsensus;
+import se.kth.id2203.paxos.MultiPaxos;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.Timer;
@@ -35,7 +37,7 @@ public class ParentComponent
     protected final Component basicb = create(BasicBroadcast.class, Init.NONE);
     protected final Component perfectLink = create(PerfectLinkComponent.class, Init.NONE);
     protected final Component epfd = create(EPFD.class, Init.NONE);
-
+    protected final Component paxos = create(MultiPaxos.class, Init.NONE);
 
     {
 
@@ -76,6 +78,13 @@ public class ParentComponent
         connect(overlay.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), epfd.getNegative(PerfectLink.class), Channel.TWO_WAY);
         connect(boot.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+
+        //PAXOS
+        connect(overlay.getPositive(Bootstrapping.class), paxos.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        //connect(epfd.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        //connect(basicb.getPositive(BestEffortBroadcast.class), riwcmc.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
+        connect(paxos.getPositive(AbortableSequenceConsensus.class), kv.getNegative(AbortableSequenceConsensus.class), Channel.TWO_WAY);
+        connect(perfectLink.getPositive(PerfectLink.class), paxos.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
     }
 }

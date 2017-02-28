@@ -11,10 +11,10 @@ public class Accept implements KompicsEvent, Serializable {
 
     public final int timestamp;
     public final int proposer_timestamp;
-    public final LinkedList<Object> acceptor_seq;
+    public final LinkedList<KompicsEvent> acceptor_seq;
     public final int proposer_seq_length;
 
-    public Accept(int timestamp, int proposer_timestamp, LinkedList<Object> acceptor_seq, int proposer_seq_length) {
+    public Accept(int timestamp, int proposer_timestamp, LinkedList<KompicsEvent> acceptor_seq, int proposer_seq_length) {
         this.timestamp = timestamp;
         this.acceptor_seq = acceptor_seq;
         this.proposer_seq_length = proposer_seq_length;

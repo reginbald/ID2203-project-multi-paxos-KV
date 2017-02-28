@@ -62,29 +62,85 @@ public class KVService extends ComponentDefinition {
         public void handle(GetOperation content, Message context) {
             LOG.info("GET request - Key: {}!", content.key);
 
-            trigger(new Propose(content.id, context.getSource(), content.key, store.get(content.key)), asc);
+            trigger(new Propose(new AR_Read_Request(content.id, content.key, context.getSource())), asc);
             //trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
         }
 
     };
 
-    protected final Handler<DECIDE_RESPONSE> decideHandler = new Handler<DECIDE_RESPONSE>() {
+    protected final ClassMatchedHandler<PutOperation, Message> putHandler = new ClassMatchedHandler<PutOperation, Message>() {
 
         @Override
-        public void handle(DECIDE_RESPONSE response) {
-            store.put(response.key, response.value);
+        public void handle(PutOperation content, Message context) {
+            LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
+            trigger(new Propose(new AR_Write_Request(content.id, content.key, context.getSource(), content.value)), asc);
+            //trigger(new AR_Write_Request(content.id, content.key, context.getSource(), content.value), atomicRegister);
+        }
 
-            if (response.value != null){
-                LOG.info("Value: {}!", response.value);
-                trigger(new Message(self, response.source, new OpResponse(response.id, Code.OK, response.value.toString())), net);
+    };
+
+    protected final ClassMatchedHandler<CasOperation, Message> casRequestHandler = new ClassMatchedHandler<CasOperation, Message>() {
+
+        @Override
+        public void handle(CasOperation content, Message context) {
+            LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
+            trigger(new Propose(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue)), asc);
+            //trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
+        }
+
+    };
+
+
+    // Used in Paxos implementation
+    protected final ClassMatchedHandler<AR_Read_Request, DECIDE_RESPONSE> decideReadHandler = new ClassMatchedHandler<AR_Read_Request, DECIDE_RESPONSE>() {
+
+        @Override
+        public void handle(AR_Read_Request get, DECIDE_RESPONSE response) {
+            Object value = store.get(get.request_key);
+
+            if (value != null){
+                LOG.info("Value: {}!", value);
+                trigger(new Message(self, get.request_source, new OpResponse(get.request_id, Code.OK, value.toString())), net);
             } else {
                 LOG.info("Key not found");
-                trigger(new Message(self, response.source, new OpResponse(response.id, Code.NOT_FOUND, "")), net);
+                trigger(new Message(self, get.request_source, new OpResponse(get.request_id, Code.NOT_FOUND, "")), net);
             }
         }
 
     };
 
+    // Used in Paxos implementation
+    protected final ClassMatchedHandler<AR_Write_Request, DECIDE_RESPONSE> decideWriteHandler = new ClassMatchedHandler<AR_Write_Request, DECIDE_RESPONSE>() {
+
+        @Override
+        public void handle(AR_Write_Request put, DECIDE_RESPONSE response) {
+            store.put(put.request_key, put.value);
+            trigger(new Message(self, put.request_source, new OpResponse(put.request_id, Code.OK, "")), net);
+        }
+
+    };
+
+    // Used in Paxos implementation
+    protected final ClassMatchedHandler<AR_CAS_Request, DECIDE_RESPONSE> decideCasHandler = new ClassMatchedHandler<AR_CAS_Request, DECIDE_RESPONSE>() {
+
+        @Override
+        public void handle(AR_CAS_Request cas, DECIDE_RESPONSE response) {
+            Object value = store.get(cas.key);
+            if (value == null){
+                trigger(new Message(self, cas.request_source, new OpResponse(cas.request_id, Code.NOT_FOUND, "")), net);
+            } else {
+                if(value.equals(cas.referenceValue)){
+                    store.put(cas.key, cas.newValue);
+                    trigger(new Message(self, cas.request_source, new OpResponse(cas.request_id, Code.OK, "")), net);
+                } else {
+                    trigger(new Message(self, cas.request_source,new OpResponse(cas.request_id, Code.NO_MATCH, "")), net);
+                }
+            }
+        }
+
+    };
+
+    // Used in atomic register implementation
     protected final Handler<AR_Read_Response> readHandler = new Handler<AR_Read_Response>() {
 
         @Override
@@ -99,16 +155,7 @@ public class KVService extends ComponentDefinition {
         }
     };
 
-    protected final ClassMatchedHandler<PutOperation, Message> putHandler = new ClassMatchedHandler<PutOperation, Message>() {
-
-        @Override
-        public void handle(PutOperation content, Message context) {
-            LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
-            trigger(new AR_Write_Request(content.id, content.key, context.getSource(), content.value), atomicRegister);
-        }
-
-    };
-
+    // Used in atomic register implementation
     protected final Handler<AR_Write_Response> writeHandler = new Handler<AR_Write_Response>() {
 
         @Override
@@ -118,16 +165,7 @@ public class KVService extends ComponentDefinition {
 
     };
 
-    protected final ClassMatchedHandler<CasOperation, Message> casRequestHandler = new ClassMatchedHandler<CasOperation, Message>() {
-
-        @Override
-        public void handle(CasOperation content, Message context) {
-            LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
-            trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
-        }
-
-    };
-
+    // Used in atomic register implementation
     protected final Handler<AR_CAS_Response> casResponseHandler = new Handler<AR_CAS_Response>() {
         @Override
         public void handle(AR_CAS_Response response) {
@@ -140,6 +178,11 @@ public class KVService extends ComponentDefinition {
         subscribe(readHandler, atomicRegister);
         subscribe(writeHandler, atomicRegister);
         subscribe(casResponseHandler, atomicRegister);
+
+        subscribe(decideReadHandler, asc);
+        subscribe(decideWriteHandler, asc);
+        subscribe(decideCasHandler, asc);
+
         subscribe(opHandler, net);
         subscribe(putHandler, net);
         subscribe(casRequestHandler, net);
