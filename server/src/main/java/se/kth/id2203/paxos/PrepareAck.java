@@ -5,33 +5,32 @@ import se.sics.kompics.KompicsEvent;
 
 import java.io.Serializable;
 import java.util.LinkedList;
-import java.util.List;
 
 public class PrepareAck implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 116L;
 
+    public final int ptsPrime;
     public final int ts;
-    public final int ats;
     public final LinkedList<KompicsEvent> vsuf;
-    public final int al;
-    public final int t;
+    public final int l;
+    public final int tPrime;
 
-    public PrepareAck(int ts, int ats, LinkedList<KompicsEvent> vsuf, int al, int t) {
+    public PrepareAck(int ptsPrime, int ts, LinkedList<KompicsEvent> vsuf, int l, int tPrime) {
+        this.ptsPrime = ptsPrime;
         this.ts = ts;
-        this.ats = ats;
         this.vsuf = vsuf;
-        this.al = al;
-        this.t = t;
+        this.l = l;
+        this.tPrime = tPrime;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("ptsPrime", ptsPrime)
                 .add("ts", ts)
-                .add("ats", ats)
                 .add("vsuf", vsuf)
-                .add("al", al)
-                .add("t", t)
+                .add("l", l)
+                .add("tPrime", tPrime)
                 .toString();
     }
 }

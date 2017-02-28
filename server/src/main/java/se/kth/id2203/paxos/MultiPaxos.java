@@ -23,18 +23,18 @@ public class MultiPaxos extends ComponentDefinition {
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     int n;
     int selfRank;
-    private int t; //logical clock
-    private int prepts; //acceptor: prepared timestamp
-    private int ats, pts; // acceptor timestamp, proposer timestamp
-    private LinkedList<KompicsEvent> av, pv; // accepted seq, proposed seq
-    private int al, pl; // length of decided seq, length of learned seq
+    private int t = 0; //logical clock
+    private int prepts = 0; //acceptor: prepared timestamp
+    private int ats = 0, pts = 0; // acceptor timestamp, proposer timestamp
+    private LinkedList<KompicsEvent> av =  new LinkedList<>(), pv =  new LinkedList<>(); // accepted seq, proposed seq
+    private int al = 0, pl = 0; // length of decided seq, length of learned seq
 
     Set<NetAddress> nodes;
 
-    List<KompicsEvent>proposedValues;
-    private HashMap<NetAddress, Tuple> readlist;
-    private HashMap<NetAddress, Integer> accepted; //proposer’s knowledge about length of acceptor’s longest accepted seq
-    private HashMap<NetAddress, Integer> decided; //proposer’s knowledge about length of acceptor’s longest decided seq
+    List<KompicsEvent>proposedValues = new ArrayList<>();
+    private HashMap<NetAddress, Tuple> readlist = new HashMap<>();
+    private HashMap<NetAddress, Integer> accepted  = new HashMap<>(); //proposer’s knowledge about length of acceptor’s longest accepted seq
+    private HashMap<NetAddress, Integer> decided  = new HashMap<>(); //proposer’s knowledge about length of acceptor’s longest decided seq
 
 
     protected final Handler<Partition> initHandler = new Handler<Partition>(){
@@ -43,19 +43,17 @@ public class MultiPaxos extends ComponentDefinition {
             LOG.info("Init: {}", partition.nodes);
             nodes = partition.nodes;
             n = partition.nodes.size(); // all nodes in partition
-            selfRank = self.getPort(); //Todo: find out if correct
-            t = 0;
-            prepts = 0;
-            ats = 0;
-            av = new LinkedList<>();
-            al = 0;
-            pts = 0;
-            pv = new LinkedList<>();
-            pl = 0;
-            proposedValues = new ArrayList<>();
-            readlist = new HashMap<>();
-            accepted = new HashMap<>();
-            decided = new HashMap<>();
+            selfRank = self.getIp().hashCode() + self.getPort(); //Todo: find out if correct
+            //ats = 0;
+            //av =
+            //al = 0;
+            //pts = 0;
+            //pv = new LinkedList<>();
+            //pl = 0;
+            //proposedValues = new ArrayList<>();
+            //readlist = new HashMap<>();
+            //accepted = new HashMap<>();
+            //decided = new HashMap<>();
         }
     };
 
@@ -64,17 +62,18 @@ public class MultiPaxos extends ComponentDefinition {
         public void handle(Propose p) {
             LOG.info("Propose: {}", p);
             t++;
-            if(pts == 0){
+            if(pts == 0) {
                 pts = t * n + selfRank;
                 pv = prefix(av, al);
                 pl = 0;
+                proposedValues = new ArrayList<>();
                 proposedValues.add(p.value);
                 readlist = new HashMap<>();
                 accepted = new HashMap<>();
                 decided = new HashMap<>();
 
                 for (NetAddress node : nodes) {
-                    trigger(new PL_Send(node, new Prepare(pts,al, t)), pLink);
+                    trigger(new PL_Send(node, new Prepare(pts,al,t)), pLink);
                 }
             } else if(readlist.size() <= Math.floor(n/2) ){
                 proposedValues.add(p.value);
@@ -84,8 +83,7 @@ public class MultiPaxos extends ComponentDefinition {
                     if(readlist.get(node) != null ){
                         LinkedList<KompicsEvent> pVal = new LinkedList<>();
                         pVal.add(p.value);
-                        trigger(new PL_Send(node, new Accept(pts, pVal, pv.size() - 1, t)), pLink);
-
+                        trigger(new PL_Send(node, new Accept(pts, pVal, pv.size(), t)), pLink);
                     }
                 }
 
@@ -97,23 +95,23 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Prepare p, PL_Deliver d) {
             LOG.info("Prepare: {}", p);
-            t = Math.max(t, p.t) + 1;
-            if (p.pts < prepts){
-                trigger(new PL_Send(d.src, new NACK(p.pts, t)), pLink); // ⟨ fpl, Send | q, [Nack, ts, t] ⟩;
+            t = Math.max(t, p.tPrime) + 1;
+            if (p.ts < prepts){
+                trigger(new PL_Send(d.src, new NACK(p.ts, t)), pLink);
             }
             else {
-                prepts = p.pts;
-                trigger(new PL_Send(d.src, new PrepareAck(p.pts, ats, suffix(av, p.al), al, t)), pLink);
+                prepts = p.ts;
+                trigger(new PL_Send(d.src, new PrepareAck(p.ts, ats, suffix(av, p.l), al, t)), pLink);
             }
         }
     };
 
     protected final ClassMatchedHandler<NACK, PL_Deliver> nackHandler = new ClassMatchedHandler<NACK, PL_Deliver>() {
         @Override
-        public void handle(NACK n, PL_Deliver d) {
+        public void handle(NACK p, PL_Deliver d) {
             LOG.info("NACK: {}", n);
-            t = Math.max(t,n.t) + 1;
-            if (n.ts == pts) {
+            t = Math.max(t, p.tPrime) + 1;
+            if (p.ptsPrime == pts) {
                 pts = 0;
                 trigger(new Abort(), asc);
             }
@@ -123,59 +121,58 @@ public class MultiPaxos extends ComponentDefinition {
     protected final ClassMatchedHandler<PrepareAck, PL_Deliver> prepareAckHandler = new ClassMatchedHandler<PrepareAck, PL_Deliver>() {
         @Override
         public void handle(PrepareAck p, PL_Deliver d) {
-            LOG.info("PrepareAck: {}", p);
-            t = Math.max(t, p.t) + 1;
-            if(p.ts == pts) {
-                readlist.put(d.src, new Tuple(p.ats, p.vsuf));
-                decided.put(d.src, p.al);
-                if (readlist.size() == (Math.floor(n/2)+1)) {
-                    LinkedList<KompicsEvent> vsufPrime = new LinkedList<>();
-                    int tsPrime = 0;
-                    Tuple primeTuple = new Tuple(tsPrime, vsufPrime);
-                    for(Tuple entry : readlist.values()) {
-                        if((tsPrime < entry.ts) || (tsPrime == entry.ts && vsufPrime.size() < entry.sequence.size())) {
-                            primeTuple = new Tuple(entry.ts, entry.sequence);
-                        }
-                    }
-                    pv.addAll(primeTuple.sequence);
-                    for (KompicsEvent v : proposedValues) {
-                        if (!pv.contains(v)){
-                            pv.add(v);
-                        }
-                    }
-                    for (NetAddress node : nodes) {
-                        if(readlist.get(node) != null){
-                            int lprime = decided.get(node);
-                            trigger(new PL_Send(node, new Accept(pts, suffix(pv, lprime), lprime, t)), pLink);
-                        }
+        LOG.info("PrepareAck: {}", p);
+        t = Math.max(t, p.tPrime) + 1;
+        if(p.ptsPrime == pts) {
+            readlist.put(d.src, new Tuple(p.ts, p.vsuf));
+            decided.put(d.src, p.l);
+            if (readlist.size() == (Math.floor(n/2) + 1)) {
+                LinkedList<KompicsEvent> vsufPrime = new LinkedList<>();
+                int tsPrime = 0;
+                for(Tuple entry : readlist.values()) {
+                    if((tsPrime < entry.ts) || (tsPrime == entry.ts && vsufPrime.size() < entry.sequence.size())) {
+                        tsPrime = entry.ts;
+                        vsufPrime = entry.sequence;
                     }
                 }
-                else if (readlist.size() > (Math.floor(n/2) + 1)) {
-                    trigger(new PL_Send(d.src, new Accept(pts, suffix(pv, p.al), p.al, t)), pLink);
-                    if (pl != 0) {
-                        trigger(new PL_Send(d.src, new Decide(pts, pl, t)), pLink);
+                pv.addAll(vsufPrime);
+                for (KompicsEvent v : proposedValues) {
+                    if (!pv.contains(v)){
+                        pv.add(v);
+                    }
+                }
+                for (NetAddress node : nodes) {
+                    if(readlist.get(node) != null){
+                        int lPrime = decided.get(node);
+                        trigger(new PL_Send(node, new Accept(pts, suffix(pv, lPrime), lPrime, t)), pLink);
                     }
                 }
             }
-
+            else if (readlist.size() > (Math.floor(n/2) + 1)) {
+                trigger(new PL_Send(d.src, new Accept(pts, suffix(pv, p.l), p.l, t)), pLink);
+                if (pl != 0) {
+                    trigger(new PL_Send(d.src, new Decide(pts, pl, t)), pLink);
+                }
+            }
+        }
         }
     };
 
     protected final ClassMatchedHandler<Accept, PL_Deliver> acceptHandler = new ClassMatchedHandler<Accept, PL_Deliver>() {
         @Override
         public void handle(Accept p, PL_Deliver d) {
-            LOG.info("Accept: {}", p);
-            t = Math.max(t, p.t) + 1;
-            if (p.pts != prepts){
-                trigger(new PL_Send(d.src, new NACK(p.pts, t)), pLink);
-            } else {
-                ats = p.pts;
-                if (p.pv_length < av.size()) {
-                    av = prefix(av, p.pv_length);
-                }
-                av.addAll(p.v);
-                trigger(new PL_Send(d.src, new AcceptAck(p.pts, av.size() - 1, t)), pLink);
+        LOG.info("Accept: {}", p);
+        t = Math.max(t, p.tPrime) + 1;
+        if (p.ts != prepts){
+            trigger(new PL_Send(d.src, new NACK(p.ts, t)), pLink);
+        } else {
+            ats = p.ts;
+            if (p.offs < av.size()) {
+                av = prefix(av, p.offs);
             }
+            av.addAll(p.vsuf);
+            trigger(new PL_Send(d.src, new AcceptAck(p.ts, av.size(), t)), pLink);
+        }
         }
     };
 
@@ -183,18 +180,18 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(AcceptAck p, PL_Deliver d) {
             LOG.info("AcceptAck: {}", p);
-            t = Math.max(t, p.t) + 1;
-            if (p.ts == pts){
-                accepted.put(d.src, p.av_length);
+            t = Math.max(t, p.tPrime) + 1;
+            if (p.ptsPrime == pts){
+                accepted.put(d.src, p.l);
                 int nal = 0;
                 for (NetAddress node : nodes) {
                     Integer ac = accepted.get(node);
-                    if(ac != null && ac >= p.av_length){
+                    if(ac != null && ac >= p.l){
                         nal++;
                     }
                 }
-                if(pl < p.av_length && nal > Math.floor(n/2)){
-                    pl = p.av_length;
+                if(pl < p.l && nal > Math.floor(n/2)){
+                    pl = p.l;
                     for (NetAddress node : nodes) {
                         if (readlist.get(node) != null){
                             trigger(new PL_Send(node, new Decide(pts, pl ,t)), pLink);
@@ -209,11 +206,11 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Decide p, PL_Deliver d) {
             LOG.info("decide: {}", p);
-            t = Math.max(t, p.t) + 1;
-            if (p.pts == prepts ){
-                while (al < p.pl) {
+            t = Math.max(t, p.tPrime) + 1;
+            if (p.ts == prepts ){
+                while (al < p.l) {
                     trigger(new DECIDE_RESPONSE(av.get(al)), asc);
-                    al = al + 1;
+                    al++;
                 }
             }
         }

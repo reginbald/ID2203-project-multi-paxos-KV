@@ -8,22 +8,22 @@ import java.io.Serializable;
 public class Prepare implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 115L;
 
-    public final int t;
-    public final int al;
-    public final int pts;
+    public final int ts;
+    public final int l;
+    public final int tPrime;
 
-    public Prepare(int pts, int al, int t) {
-        this.t = t;
-        this.al = al;
-        this.pts = pts;
+    public Prepare(int ts, int l, int tPrime) {
+        this.ts = ts;
+        this.l = l;
+        this.tPrime = tPrime;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("t", t)
-                .add("al", al)
-                .add("pts", pts)
+                .add("ptsPrime", ts)
+                .add("l", l)
+                .add("tPrime", tPrime)
                 .toString();
     }
 }
