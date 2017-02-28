@@ -8,19 +8,19 @@ import java.io.Serializable;
 public class NACK implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 114L;
 
-    public final int timestamp;
-    public final int proposer_timestamp;
+    public final int ts;
+    public final int t;
 
-    public NACK(int timestamp, int proposer_timestamp) {
-        this.timestamp = timestamp;
-        this.proposer_timestamp = proposer_timestamp;
+    public NACK(int ts, int t) {
+        this.ts = ts;
+        this.t = t;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("timestamp", timestamp)
-                .add("proposer_timestamp", proposer_timestamp)
+                .add("ts", ts)
+                .add("t", t)
                 .toString();
     }
 }

@@ -9,25 +9,25 @@ import java.util.LinkedList;
 public class Accept implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 111L;
 
-    public final int timestamp;
-    public final int proposer_timestamp;
-    public final LinkedList<KompicsEvent> acceptor_seq;
-    public final int proposer_seq_length;
+    public final int t;
+    public final int pts;
+    public final LinkedList<KompicsEvent> v;
+    public final int pv_length;
 
-    public Accept(int timestamp, int proposer_timestamp, LinkedList<KompicsEvent> acceptor_seq, int proposer_seq_length) {
-        this.timestamp = timestamp;
-        this.acceptor_seq = acceptor_seq;
-        this.proposer_seq_length = proposer_seq_length;
-        this.proposer_timestamp = proposer_timestamp;
+    public Accept(int pts, LinkedList<KompicsEvent> v, int pv_length, int t) {
+        this.t = t;
+        this.pts = pts;
+        this.pv_length = pv_length;
+        this.v = v;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("timestamp", timestamp)
-                .add("proposer_timestamp", proposer_timestamp)
-                .add("acceptor_seq", acceptor_seq)
-                .add("proposer_seq_length", proposer_seq_length)
+                .add("pts", pts)
+                .add("v", v)
+                .add("pv_length", pv_length)
+                .add("t", t)
                 .toString();
     }
 }

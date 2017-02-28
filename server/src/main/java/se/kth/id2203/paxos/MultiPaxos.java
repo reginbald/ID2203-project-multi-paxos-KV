@@ -41,6 +41,7 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Partition partition) {
             LOG.info("Init: {}", partition.nodes);
+            nodes = partition.nodes;
             n = partition.nodes.size(); // all nodes in partition
             selfRank = self.getPort(); //Todo: find out if correct
             t = 0;
@@ -73,7 +74,7 @@ public class MultiPaxos extends ComponentDefinition {
                 decided = new HashMap<>();
 
                 for (NetAddress node : nodes) {
-                    trigger(new PL_Send(node, new Prepare(t, al, pts)), pLink);
+                    trigger(new PL_Send(node, new Prepare(pts,al, t)), pLink);
                 }
             } else if(readlist.size() <= Math.floor(n/2) ){
                 proposedValues.add(p.value);
@@ -83,7 +84,7 @@ public class MultiPaxos extends ComponentDefinition {
                     if(readlist.get(node) != null ){
                         LinkedList<KompicsEvent> pVal = new LinkedList<>();
                         pVal.add(p.value);
-                        trigger(new PL_Send(node, new Accept(t, pts, pVal,pv.size() - 1)), pLink);
+                        trigger(new PL_Send(node, new Accept(pts, pVal, pv.size() - 1, t)), pLink);
 
                     }
                 }
@@ -96,13 +97,13 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(Prepare p, PL_Deliver d) {
             LOG.info("Prepare: {}", p);
-            t = Math.max(t, p.timestamp) + 1;
-            if (p.proposer_timestamp < prepts){
-                trigger(new PL_Send(d.src, new NACK(t, p.proposer_timestamp)), pLink); // ⟨ fpl, Send | q, [Nack, ts, t] ⟩;
+            t = Math.max(t, p.t) + 1;
+            if (p.pts < prepts){
+                trigger(new PL_Send(d.src, new NACK(p.pts, t)), pLink); // ⟨ fpl, Send | q, [Nack, ts, t] ⟩;
             }
             else {
-                prepts = p.proposer_timestamp;
-                trigger(new PL_Send(d.src, new PrepareAck(t, ats, suffix(av, p.acceptor_seq_length), al, p.proposer_timestamp)), pLink);
+                prepts = p.pts;
+                trigger(new PL_Send(d.src, new PrepareAck(p.pts, ats, suffix(av, p.al), al, t)), pLink);
             }
         }
     };
@@ -111,8 +112,8 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(NACK n, PL_Deliver d) {
             LOG.info("NACK: {}", n);
-            t = Math.max(t,n.timestamp) + 1;
-            if (n.proposer_timestamp == pts) {
+            t = Math.max(t,n.t) + 1;
+            if (n.ts == pts) {
                 pts = 0;
                 trigger(new Abort(), asc);
             }
@@ -123,46 +124,17 @@ public class MultiPaxos extends ComponentDefinition {
         @Override
         public void handle(PrepareAck p, PL_Deliver d) {
             LOG.info("PrepareAck: {}", p);
-            t = Math.max(t, p.timestamp) + 1; // TODO: is p.timestamp correct?
-            //if pts′= pts then
-            //pts = proposer timestamp
-            if(p.proposer_timestamp == pts) {
-                //readlist[q] := (ts, vsuf );
-                // decided[q] := l;
-                readlist.put(d.src, new Tuple(p.timestamp, p.acceptor_seq));
-                // decided[q] := l;
-                decided.put(d.src, p.acceptor_seq_length);
-                //if #(readlist) = ⌊N/2⌋ + 1 then
+            t = Math.max(t, p.t) + 1;
+            if(p.ts == pts) {
+                readlist.put(d.src, new Tuple(p.ats, p.vsuf));
+                decided.put(d.src, p.al);
                 if (readlist.size() == (Math.floor(n/2)+1)) {
-                    // (ts′, vsuf ′) := (0, ⟨⟩);
                     LinkedList<KompicsEvent> vsufPrime = new LinkedList<>();
                     int tsPrime = 0;
                     Tuple primeTuple = new Tuple(tsPrime, vsufPrime);
-                    // for all (ts′′, vsuf ′′) ∈ readlist do
-                    for(Map.Entry<NetAddress,Tuple> entry : readlist.entrySet()) {
-                        //if ts′ < ts′′ || ( ts′ = ts′′ && #(vsuf ′) < #(vsuf ′′)  then
-                        Tuple entryTuple = entry.getValue();
-                        if((tsPrime < entryTuple.ts) || (tsPrime == entryTuple.ts && vsufPrime.size() < entryTuple.sequence.size())) {
-                            // (ts′, vsuf ′) := (ts′′, vsuf ′′);
-                            primeTuple = entryTuple;
-                        }
-                        //pv := pv + vsuf ′;
-                        pv.addAll(vsufPrime); // TODO: correct ?
-                        //for all v ∈ proposedValues such that v ∈/ pv do
-                        for (KompicsEvent object : proposedValues) {
-                            if(!(pv.contains(object))) {
-                                //pv := pv + ⟨v⟩;
-                                pv.add(object);
-                            }
-                        }
-                        // for all p ∈ Π such that readlist[p] ̸= ⊥ do
-                        for(NetAddress addr : nodes) {
-                            if(readlist.containsKey(addr)) {
-                                // l′ := decided[p];
-                                int lPrime = decided.get(addr);
-                                //trigger ⟨ fpl,Send | p,[Accept,pts,suffix(pv,l′),l′,t] ⟩;
-                                trigger(new PL_Send(addr, new Accept(pts,lPrime, suffix(pv, lPrime), t)), pLink);
-                            }
+                    for(Tuple entry : readlist.values()) {
+                        if((tsPrime < entry.ts) || (tsPrime == entry.ts && vsufPrime.size() < entry.sequence.size())) {
+                            primeTuple = new Tuple(entry.ts, entry.sequence);
                         }
                     }
                 }
@@ -241,6 +213,12 @@ public class MultiPaxos extends ComponentDefinition {
     {
         subscribe(initHandler, boot);
         subscribe(proposeHandler, asc);
+        subscribe(prepareHandler, pLink);
+        subscribe(nackHandler, pLink);
+        subscribe(prepareAckHandler, pLink);
+        subscribe(acceptHandler, pLink);
+        subscribe(acceptAckHandler, pLink);
+        subscribe(decideHandler, pLink);
     }
 
     private LinkedList<KompicsEvent> prefix(LinkedList<KompicsEvent> sequence, int length ){

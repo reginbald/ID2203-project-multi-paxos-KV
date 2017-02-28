@@ -10,28 +10,28 @@ import java.util.List;
 public class PrepareAck implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 116L;
 
-    public final int timestamp;
-    public final int acceptor_timestamp;
-    public final LinkedList<KompicsEvent> acceptor_seq;
-    public final int acceptor_seq_length;
-    public final int proposer_timestamp;
+    public final int ts;
+    public final int ats;
+    public final LinkedList<KompicsEvent> vsuf;
+    public final int al;
+    public final int t;
 
-    public PrepareAck(int timestamp, int acceptor_timestamp, LinkedList<KompicsEvent> acceptor_seq, int acceptor_seq_length, int proposer_timestamp) {
-        this.timestamp = timestamp;
-        this.acceptor_timestamp = acceptor_timestamp;
-        this.acceptor_seq = acceptor_seq;
-        this.acceptor_seq_length = acceptor_seq_length;
-        this.proposer_timestamp = proposer_timestamp;
+    public PrepareAck(int ts, int ats, LinkedList<KompicsEvent> vsuf, int al, int t) {
+        this.ts = ts;
+        this.ats = ats;
+        this.vsuf = vsuf;
+        this.al = al;
+        this.t = t;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("timestamp", timestamp)
-                .add("acceptor_timestamp", acceptor_timestamp)
-                .add("acceptor_seq", acceptor_seq)
-                .add("acceptor_seq_length", acceptor_seq_length)
-                .add("proposer_timestamp", proposer_timestamp)
+                .add("ts", ts)
+                .add("ats", ats)
+                .add("vsuf", vsuf)
+                .add("al", al)
+                .add("t", t)
                 .toString();
     }
 }
