@@ -96,7 +96,7 @@ public class MultiPaxos extends ComponentDefinition {
             t = Math.max(t, p.tPrime) + 1;
             if (p.ptsPrime == pts) {
                 pts = 0;
-                trigger(new Abort(), asc);
+                trigger(new Abort(null), asc);
             }
         }
     };
@@ -193,6 +193,9 @@ public class MultiPaxos extends ComponentDefinition {
                     trigger(new DECIDE_RESPONSE(av.get(al)), asc);
                     al++;
                 }
+                //if (av.size() != 0){
+                //    trigger(new DECIDE_FINAL(av.get(al)), asc);
+                //}
             }
         }
     };

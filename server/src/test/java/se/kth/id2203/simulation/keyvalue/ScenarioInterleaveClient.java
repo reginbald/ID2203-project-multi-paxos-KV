@@ -83,6 +83,7 @@ public class ScenarioInterleaveClient extends ComponentDefinition {
             res.put(key, "Status: " + content.status.toString() + " Data: "+ content.data);
         } else {
             LOG.warn("ID {} was not pending! Ignoring response.", content.id);
+            return;
         }
 
         if(key.equals("7")) seven = true;
