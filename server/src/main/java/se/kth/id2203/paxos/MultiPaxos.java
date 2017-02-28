@@ -31,7 +31,7 @@ public class MultiPaxos extends ComponentDefinition {
 
     Set<NetAddress> nodes;
 
-    private HashMap<Object, List<Object>>proposedValues;
+    List<Object>proposedValues;
     private HashMap<NetAddress, Tuple> readlist;
     private HashMap<NetAddress, Integer> accepted; //proposer’s knowledge about length of acceptor’s longest accepted seq
     private HashMap<NetAddress, Integer> decided; //proposer’s knowledge about length of acceptor’s longest decided seq
@@ -51,7 +51,7 @@ public class MultiPaxos extends ComponentDefinition {
             pts = 0;
             pv = new LinkedList<>();
             pl = 0;
-            proposedValues = new HashMap<>();
+            proposedValues = new ArrayList<>();
             readlist = new HashMap<>();
             accepted = new HashMap<>();
             decided = new HashMap<>();
@@ -68,27 +68,23 @@ public class MultiPaxos extends ComponentDefinition {
                 pv = new LinkedList<>(av);
                 pv.push(al);
                 pl = 0;
-                List<Object> propValues = new ArrayList<>();
-                propValues.add(p.value);
-                proposedValues.put(p.key, propValues);
+                proposedValues.add(p.value);
                 readlist = new HashMap<>();
                 accepted = new HashMap<>();
                 decided = new HashMap<>();
 
                 for (NetAddress node : nodes) {
-                    trigger(new PL_Send(node, new Prepare(p.key, t, al, pts)), pLink);
+                    trigger(new PL_Send(node, new Prepare(t, al, pts)), pLink);
                 }
             } else if(readlist.size() <= Math.floor(n/2) ){
-                List<Object> values = proposedValues.get(p.key);
-                values.add(p.value);
-                proposedValues.put(p.key, values);
+                proposedValues.add(p.value);
             } else if(!pv.contains(p.value)){
                 pv.add(p.value);
                 for (NetAddress node : nodes) {
                     if(readlist.get(node) != null ){
                         LinkedList<Object> pVal = new LinkedList<>();
                         pVal.add(p.value);
-                        trigger(new PL_Send(node, new Accept(p.key, t, pts, pVal,pv.size() - 1)), pLink);
+                        trigger(new PL_Send(node, new Accept(t, pts, pVal,pv.size() - 1)), pLink);
 
                     }
                 }
@@ -109,7 +105,7 @@ public class MultiPaxos extends ComponentDefinition {
                 prepts = p.proposer_timestamp;
                 LinkedList<Object> av2 = new LinkedList<>(av);
                 av2.add(p.acceptor_seq_length);
-                trigger(new PL_Send(d.src, new PrepareAck(p.key, t, ats, av2, al, p.proposer_timestamp)), pLink);
+                trigger(new PL_Send(d.src, new PrepareAck(t, ats, av2, al, p.proposer_timestamp)), pLink);
             }
         }
     };
@@ -156,7 +152,7 @@ public class MultiPaxos extends ComponentDefinition {
                         //pv := pv + vsuf ′;
                         pv.add(vsufPrime); // TODO: correct ?
                         //for all v ∈ proposedValues such that v ∈/ pv do
-                        for (Object object : proposedValues.get(p.key)) {
+                        for (Object object : proposedValues) {
                             if(!(pv.contains(object))) {
                                 //pv := pv + ⟨v⟩;
                                 pv.add(object);
@@ -170,7 +166,7 @@ public class MultiPaxos extends ComponentDefinition {
                                 //trigger ⟨ fpl,Send | p,[Accept,pts,suffix(pv,l′),l′,t] ⟩;
                                 LinkedList<Object> pv2 = new LinkedList<>(pv);
                                 pv2.add(lPrime);
-                                trigger(new PL_Send(addr, new Accept(p.key, pts,lPrime, pv2, t)), pLink);
+                                trigger(new PL_Send(addr, new Accept(pts,lPrime, pv2, t)), pLink);
                             }
                         }
                     }
@@ -180,11 +176,11 @@ public class MultiPaxos extends ComponentDefinition {
                     //trigger ⟨ fpl,Send | q,[Accept,pts,suffix(pv,l),l,t] ⟩;
                     LinkedList<Object> pv2 = new LinkedList<>(pv);
                     pv2.add(p.acceptor_seq_length);
-                    trigger(new PL_Send(d.src, new Accept(p.key, pts, p.acceptor_seq_length, pv2, t)), pLink);
+                    trigger(new PL_Send(d.src, new Accept(pts, p.acceptor_seq_length, pv2, t)), pLink);
                     //if pl ̸= 0 then
                     if (pl != 0) {
                         // trigger ⟨ fpl, Send | q, [Decide, pts, pl, t] ⟩;
-                        trigger(new PL_Send(d.src, new Decide(p.key, pts, pl, t)), pLink);
+                        trigger(new PL_Send(d.src, new Decide(pts, pl, t)), pLink);
                     }
                 }
             }
@@ -205,7 +201,7 @@ public class MultiPaxos extends ComponentDefinition {
                     av.push(p.proposer_seq_length);
                 }
                 av.addAll(p.acceptor_seq);
-                trigger(new PL_Send(d.src, new AcceptAck(p.key, t, av.size(), p.proposer_timestamp )), pLink);
+                trigger(new PL_Send(d.src, new AcceptAck(t, av.size(), p.proposer_timestamp )), pLink);
             }
         }
     };
@@ -227,7 +223,7 @@ public class MultiPaxos extends ComponentDefinition {
                     pl = p.acceptor_seq_length;
                     for (NetAddress node : nodes) {
                         if (readlist.get(node) != null){
-                            trigger(new PL_Send(node, new Decide(p.key, t,pts, pl)), pLink);
+                            trigger(new PL_Send(node, new Decide(t,pts, pl)), pLink);
                         }
                     }
                 }
@@ -242,7 +238,7 @@ public class MultiPaxos extends ComponentDefinition {
             t = Math.max(t, p.timestamp) + 1;
             if (p.proposer_timestamp == prepts ){
                 while (al < p.proposer_seq_length) {
-                    trigger(new DECIDE_RESPONSE(p.key, av.get(al)), asc);
+                    trigger(new DECIDE_RESPONSE(av.get(al)), asc);
                     al = al + 1;
                 }
             }

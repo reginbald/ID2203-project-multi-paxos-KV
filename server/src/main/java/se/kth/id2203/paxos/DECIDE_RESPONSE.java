@@ -8,18 +8,15 @@ import java.io.Serializable;
 public class DECIDE_RESPONSE implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 210L;
 
-    public final Object key;
     public final Object value;
 
-    public DECIDE_RESPONSE(Object key, Object value) {
-        this.key = key;
+    public DECIDE_RESPONSE(Object value) {
         this.value = value;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("key", value)
                 .add("value", value)
                 .toString();
     }

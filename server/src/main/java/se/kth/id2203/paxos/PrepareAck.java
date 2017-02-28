@@ -10,16 +10,13 @@ import java.util.List;
 public class PrepareAck implements KompicsEvent, Serializable {
     private static final long serialVersionUID = 116L;
 
-    public final Object key;
-
     public final int timestamp;
     public final int acceptor_timestamp;
     public final LinkedList<Object> acceptor_seq;
     public final int acceptor_seq_length;
     public final int proposer_timestamp;
 
-    public PrepareAck(Object key, int timestamp, int acceptor_timestamp, LinkedList<Object> acceptor_seq, int acceptor_seq_length, int proposer_timestamp) {
-        this.key = key;
+    public PrepareAck(int timestamp, int acceptor_timestamp, LinkedList<Object> acceptor_seq, int acceptor_seq_length, int proposer_timestamp) {
         this.timestamp = timestamp;
         this.acceptor_timestamp = acceptor_timestamp;
         this.acceptor_seq = acceptor_seq;
@@ -30,7 +27,6 @@ public class PrepareAck implements KompicsEvent, Serializable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("key", key)
                 .add("timestamp", timestamp)
                 .add("acceptor_timestamp", acceptor_timestamp)
                 .add("acceptor_seq", acceptor_seq)

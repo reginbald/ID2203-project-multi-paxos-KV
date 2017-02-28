@@ -30,11 +30,17 @@ import se.kth.id2203.kvstore.OpResponse.Code;
 import se.kth.id2203.networking.Message;
 import se.kth.id2203.networking.NetAddress;
 import se.kth.id2203.overlay.Routing;
+import se.kth.id2203.paxos.AbortableSequenceConsensus;
+import se.kth.id2203.paxos.DECIDE_RESPONSE;
+import se.kth.id2203.paxos.Propose;
 import se.sics.kompics.ClassMatchedHandler;
 import se.sics.kompics.ComponentDefinition;
 import se.sics.kompics.Handler;
 import se.sics.kompics.Positive;
 import se.sics.kompics.network.Network;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class KVService extends ComponentDefinition {
 
@@ -43,8 +49,12 @@ public class KVService extends ComponentDefinition {
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Routing> route = requires(Routing.class);
     protected final Positive<AtomicRegister> atomicRegister = requires(AtomicRegister.class);
+    protected final Positive<AbortableSequenceConsensus> asc = requires(AbortableSequenceConsensus.class);
     //******* Fields ******
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
+
+    private HashMap<Object,Object> store = new HashMap<>();
+
     //******* Handlers ******
     protected final ClassMatchedHandler<GetOperation, Message> opHandler = new ClassMatchedHandler<GetOperation, Message>() {
 
@@ -52,7 +62,25 @@ public class KVService extends ComponentDefinition {
         public void handle(GetOperation content, Message context) {
             LOG.info("GET request - Key: {}!", content.key);
 
-            trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
+            trigger(new Propose(content.id, context.getSource(), content.key, store.get(content.key)), asc);
+            //trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
+        }
+
+    };
+
+    protected final Handler<DECIDE_RESPONSE> decideHandler = new Handler<DECIDE_RESPONSE>() {
+
+        @Override
+        public void handle(DECIDE_RESPONSE response) {
+            store.put(response.key, response.value);
+
+            if (response.value != null){
+                LOG.info("Value: {}!", response.value);
+                trigger(new Message(self, response.source, new OpResponse(response.id, Code.OK, response.value.toString())), net);
+            } else {
+                LOG.info("Key not found");
+                trigger(new Message(self, response.source, new OpResponse(response.id, Code.NOT_FOUND, "")), net);
+            }
         }
 
     };
