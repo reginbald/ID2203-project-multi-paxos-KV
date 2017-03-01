@@ -1,13 +1,9 @@
 package se.kth.id2203.simulation.epfd;
 
 import se.kth.id2203.networking.NetAddress;
-import se.kth.id2203.simulation.beb.BEBObserver;
-import se.kth.id2203.simulation.beb.BEBParent;
-import se.kth.id2203.simulation.beb.EPFDObserver;
 import se.sics.kompics.Init;
 import se.sics.kompics.network.Address;
 import se.sics.kompics.simulator.SimulationScenario;
-import se.sics.kompics.simulator.adaptor.Operation;
 import se.sics.kompics.simulator.adaptor.Operation1;
 import se.sics.kompics.simulator.adaptor.distributions.extra.BasicIntSequentialDistribution;
 import se.sics.kompics.simulator.events.system.KillNodeEvent;
