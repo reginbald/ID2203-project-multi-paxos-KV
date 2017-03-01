@@ -98,7 +98,7 @@ public class EPFD extends ComponentDefinition {
             }
             //logger.info("suspects: {}", suspected);
             trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
-            alive = new HashSet<>();
+            alive.clear();
             startTimer(period);
         }
     };
@@ -107,7 +107,7 @@ public class EPFD extends ComponentDefinition {
         @Override
         public void handle(HeartbeatRequest heartbeatRequest, PL_Deliver message) {
             //logger.info("Received hbRequest from {} ", message.src);
-            trigger(new PL_Send(message.src, new HeartbeatReply(seqnum)), perfectLink);
+            trigger(new PL_Send(message.src, new HeartbeatReply(heartbeatRequest.seq)), perfectLink);
         }
     };
 
@@ -118,11 +118,7 @@ public class EPFD extends ComponentDefinition {
             if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
                 logger.info("Adding {} to alive", message.src);
                 alive.add(message.src);
-
             }
-            // TODO: why u not work mr if statement ?
-            //logger.info("Adding {} to alive", message.src);
-            //alive.add(message.src);
         }
     };
     {
