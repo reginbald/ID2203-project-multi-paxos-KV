@@ -97,7 +97,7 @@ public class EPFD extends ComponentDefinition {
                 trigger(new PL_Send(a, new HeartbeatRequest(seqnum)), perfectLink);
             }
             //logger.info("suspects: {}", suspected);
-            trigger(new Suspects(suspected), boot2); // send suspects to overlay manager
+            trigger(new Suspects(suspected), epfd); // send suspects to overlay manager
             alive.clear();
             startTimer(period);
         }

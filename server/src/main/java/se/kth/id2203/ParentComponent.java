@@ -7,6 +7,7 @@ import se.kth.id2203.bootstrapping.BootstrapClient;
 import se.kth.id2203.bootstrapping.BootstrapServer;
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.epfd.EPFD;
+import se.kth.id2203.epfd.EventuallyPerfectFailureDetector;
 import se.kth.id2203.kvstore.KVService;
 import se.kth.id2203.network.BasicBroadcast;
 import se.kth.id2203.network.BestEffortBroadcast;
@@ -51,7 +52,7 @@ public class ParentComponent
         connect(net, boot.getNegative(Network.class), Channel.TWO_WAY);
         // Overlay
         connect(boot.getPositive(Bootstrapping.class), overlay.getNegative(Bootstrapping.class), Channel.TWO_WAY);
-        connect(epfd.getPositive(Bootstrapping.class), overlay.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(epfd.getPositive(EventuallyPerfectFailureDetector.class), overlay.getNegative(EventuallyPerfectFailureDetector.class), Channel.TWO_WAY);
         connect(net, overlay.getNegative(Network.class), Channel.TWO_WAY);
         // KV
         connect(overlay.getPositive(Routing.class), kv.getNegative(Routing.class), Channel.TWO_WAY);

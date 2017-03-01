@@ -37,6 +37,7 @@ import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.bootstrapping.GetInitialAssignments;
 import se.kth.id2203.bootstrapping.InitialAssignments;
 import se.kth.id2203.epfd.AllNodes;
+import se.kth.id2203.epfd.EventuallyPerfectFailureDetector;
 import se.kth.id2203.epfd.Suspects;
 import se.kth.id2203.kvstore.OpResponse;
 import se.kth.id2203.kvstore.Operation;
@@ -70,6 +71,7 @@ public class VSOverlayManager extends ComponentDefinition {
     protected final Negative<Bootstrapping> boot2 = provides(Bootstrapping.class);
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Timer> timer = requires(Timer.class);
+    protected final Positive<EventuallyPerfectFailureDetector> epfd = requires(EventuallyPerfectFailureDetector.class);
     //******* Fields ******
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     final int replication_degree = config().getValue("id2203.project.replication_degree", Integer.class);
@@ -168,7 +170,7 @@ public class VSOverlayManager extends ComponentDefinition {
 
     {
         subscribe(initialAssignmentHandler, boot);
-        subscribe(suspectsHandler, boot);
+        subscribe(suspectsHandler, epfd);
         subscribe(bootHandler, boot);
         subscribe(routeHandler, net);
         subscribe(localRouteHandler, route);

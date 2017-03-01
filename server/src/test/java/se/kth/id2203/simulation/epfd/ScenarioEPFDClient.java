@@ -24,8 +24,6 @@ public class ScenarioEPFDClient extends ComponentDefinition {
     protected final Positive<Network> net = requires(Network.class);
     protected final Positive<Timer> timer = requires(Timer.class);
     protected final Positive<EventuallyPerfectFailureDetector> epfd = requires(EventuallyPerfectFailureDetector.class);
-
-    protected final Positive<Bootstrapping> boot = requires(Bootstrapping.class);
     protected final Negative<Bootstrapping> boot2 = provides(Bootstrapping.class);
 
     //******* Fields ******
@@ -67,7 +65,7 @@ public class ScenarioEPFDClient extends ComponentDefinition {
 
     {
         subscribe(nodesHandler, net);
-        subscribe(responseHandler, boot);
+        subscribe(responseHandler, epfd);
         subscribe(startHandler, control);
     }
 }

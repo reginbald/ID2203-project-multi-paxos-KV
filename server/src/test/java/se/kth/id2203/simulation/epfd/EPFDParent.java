@@ -2,6 +2,7 @@ package se.kth.id2203.simulation.epfd;
 
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.epfd.EPFD;
+import se.kth.id2203.epfd.EventuallyPerfectFailureDetector;
 import se.kth.id2203.network.PerfectLink;
 import se.kth.id2203.network.PerfectLinkComponent;
 import se.sics.kompics.*;
@@ -18,7 +19,7 @@ public class EPFDParent extends ComponentDefinition {
     protected final Component epfdClient = create(ScenarioEPFDClient.class, Init.NONE);
 
     {
-        connect(epfdClient.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(epfdClient.getPositive(EventuallyPerfectFailureDetector.class), epfd.getNegative(EventuallyPerfectFailureDetector.class), Channel.TWO_WAY);
         connect(epfd.getPositive(Bootstrapping.class), epfdClient.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), epfd.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
