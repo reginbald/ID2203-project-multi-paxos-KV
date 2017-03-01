@@ -188,14 +188,11 @@ public class MultiPaxos extends ComponentDefinition {
         public void handle(Decide p, PL_Deliver d) {
             LOG.info("decide: {}", p);
             t = Math.max(t, p.tPrime) + 1;
-            if (p.ts == prepts ){
+            if (p.ts == prepts){
                 while (al < p.l) {
                     trigger(new DECIDE_RESPONSE(av.get(al)), asc);
                     al++;
                 }
-                //if (av.size() != 0){
-                //    trigger(new DECIDE_FINAL(av.get(al)), asc);
-                //}
             }
         }
     };

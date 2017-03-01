@@ -117,26 +117,6 @@ public class KVService extends ComponentDefinition {
 
     };
 
-    //protected final ClassMatchedHandler<AR_Read_Request, DECIDE_FINAL> decideReadFinalHandler = new ClassMatchedHandler<AR_Read_Request, DECIDE_FINAL>() {
-    //    @Override
-    //    public void handle(AR_Read_Request get, DECIDE_FINAL response) {
-    //        Object value = store.get(get.request_key);
-    //        proposed.remove(get);
-    //        if (value != null){
-    //            LOG.info("Value: {}!", value);
-    //            trigger(new Message(self, get.request_source, new OpResponse(get.request_id, Code.OK, value.toString())), net);
-    //        } else {
-    //            LOG.info("Key not found");
-    //            trigger(new Message(self, get.request_source, new OpResponse(get.request_id, Code.NOT_FOUND, "")), net);
-    //        }
-    //        if(!proposed.isEmpty()){
-    //            for (KompicsEvent item : proposed) {
-    //                trigger(new Propose(item), asc);
-    //            }
-    //        }
-    //    }
-    //};
-
     // Used in Paxos implementation
     protected final ClassMatchedHandler<AR_Write_Request, DECIDE_RESPONSE> decideWriteHandler = new ClassMatchedHandler<AR_Write_Request, DECIDE_RESPONSE>() {
 
@@ -148,20 +128,6 @@ public class KVService extends ComponentDefinition {
         }
 
     };
-
-    //protected final ClassMatchedHandler<AR_Write_Request, DECIDE_FINAL> decideWriteFinalHandler = new ClassMatchedHandler<AR_Write_Request, DECIDE_FINAL>() {
-    //    @Override
-    //    public void handle(AR_Write_Request put, DECIDE_FINAL response) {
-    //        store.put(put.request_key, put.value);
-    //        proposed.remove(put);
-    //        trigger(new Message(self, put.request_source, new OpResponse(put.request_id, Code.OK, "")), net);
-    //        if(!proposed.isEmpty()){
-    //            for (KompicsEvent item : proposed) {
-    //                trigger(new Propose(item), asc);
-    //            }
-    //        }
-    //    }
-    //};
 
     // Used in Paxos implementation
     protected final ClassMatchedHandler<AR_CAS_Request, DECIDE_RESPONSE> decideCasHandler = new ClassMatchedHandler<AR_CAS_Request, DECIDE_RESPONSE>() {
@@ -183,29 +149,6 @@ public class KVService extends ComponentDefinition {
         }
 
     };
-
-    //protected final ClassMatchedHandler<AR_CAS_Request, DECIDE_FINAL> decideCasFinalHandler = new ClassMatchedHandler<AR_CAS_Request, DECIDE_FINAL>() {
-    //    @Override
-    //    public void handle(AR_CAS_Request cas, DECIDE_FINAL response) {
-    //        Object value = store.get(cas.key);
-    //        proposed.remove(cas);
-    //        if (value == null){
-    //            trigger(new Message(self, cas.request_source, new OpResponse(cas.request_id, Code.NOT_FOUND, "")), net);
-    //        } else {
-    //            if(value.equals(cas.referenceValue)){
-    //                store.put(cas.key, cas.newValue);
-    //                trigger(new Message(self, cas.request_source, new OpResponse(cas.request_id, Code.OK, "")), net);
-    //            } else {
-    //                trigger(new Message(self, cas.request_source,new OpResponse(cas.request_id, Code.NO_MATCH, "")), net);
-    //            }
-    //        }
-    //        if(!proposed.isEmpty()){
-    //            for (KompicsEvent item : proposed) {
-    //                trigger(new Propose(item), asc);
-    //            }
-    //        }
-    //    }
-    //};
 
     // Used in Paxos implementation
     protected final Handler<Abort> abortHandler = new Handler<Abort>() {
@@ -262,10 +205,6 @@ public class KVService extends ComponentDefinition {
         subscribe(decideWriteHandler, asc);
         subscribe(decideCasHandler, asc);
         subscribe(abortHandler, asc);
-
-        //subscribe(decideReadFinalHandler, asc);
-        //subscribe(decideWriteFinalHandler, asc);
-        //subscribe(decideCasFinalHandler, asc);
 
         subscribe(opHandler, net);
         subscribe(putHandler, net);
