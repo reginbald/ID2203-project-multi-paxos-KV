@@ -1,12 +1,12 @@
 package se.kth.id2203.simulation.beb;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.id2203.atomicregister.READ;
 import se.kth.id2203.bootstrapping.Bootstrapping;
+import se.kth.id2203.epfd.AllNodes;
 import se.kth.id2203.epfd.CheckTimeout;
 import se.kth.id2203.network.*;
 import se.kth.id2203.networking.Message;
@@ -15,7 +15,9 @@ import se.kth.id2203.simulation.SimulationResultMap;
 import se.kth.id2203.simulation.SimulationResultSingleton;
 import se.kth.id2203.simulation.keyvalue.ScenarioClient;
 import se.sics.kompics.*;
+import se.sics.kompics.network.Address;
 import se.sics.kompics.network.Network;
+import se.sics.kompics.simulator.util.GlobalView;
 import se.sics.kompics.timer.ScheduleTimeout;
 import se.sics.kompics.timer.Timeout;
 import se.sics.kompics.timer.Timer;
@@ -39,6 +41,23 @@ public class ScenarioBEBClient extends ComponentDefinition {
     private int received = 0;
     private int sent = 0;
     //******* Handlers ******
+
+    protected final Handler<Start> startHandler = new Handler<Start>() {
+        @Override
+        public void handle(Start event) {
+        GlobalView gv = config().getValue("simulation.globalview", GlobalView.class);
+
+        Set<NetAddress> topology = new HashSet<>();
+        for (Address a : gv.getAliveNodes().values()) {
+            topology.add(new NetAddress(a.getIp(), a.getPort()));
+        }
+        if(topology.size() == 5) {
+            for (NetAddress addr : topology) {
+                trigger(new Message(null, addr, new Partition(topology)), net);
+            }
+        }
+        }
+    };
 
     protected final ClassMatchedHandler<READ, BEB_Deliver> responseHandler = new ClassMatchedHandler<READ, BEB_Deliver>() {
         @Override
@@ -78,6 +97,7 @@ public class ScenarioBEBClient extends ComponentDefinition {
     }
 
     {
+        subscribe(startHandler, control);
         subscribe(timeoutHandler, timer);
         subscribe(partitionHandler, net);
         subscribe(responseHandler, beb);

@@ -171,11 +171,11 @@ public abstract class BEBScenarioGen {
         return new SimulationScenario() {
             {
 
-                SimulationScenario.StochasticProcess observer = new SimulationScenario.StochasticProcess() {
-                    {
-                        raise(1, startObserverOp);
-                    }
-                };
+                //SimulationScenario.StochasticProcess observer = new SimulationScenario.StochasticProcess() {
+                //    {
+                //        raise(1, startObserverOp);
+                //    }
+                //};
 
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
@@ -184,9 +184,9 @@ public abstract class BEBScenarioGen {
                     }
                 };
 
-                observer.start();
-                servers.startAfterTerminationOf(0, observer);
-                terminateAfterTerminationOf(10000, observer);
+                //observer.start();
+                servers.start();
+                terminateAfterTerminationOf(10000, servers);
             }
         };
     }
@@ -196,11 +196,11 @@ public abstract class BEBScenarioGen {
         return new SimulationScenario() {
             {
 
-                SimulationScenario.StochasticProcess killobserver = new SimulationScenario.StochasticProcess() {
-                    {
-                        raise(1, startKillObserverOp);
-                    }
-                };
+                //SimulationScenario.StochasticProcess killobserver = new SimulationScenario.StochasticProcess() {
+                //    {
+                //        raise(1, startKillObserverOp);
+                //    }
+                //};
 
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
@@ -216,10 +216,10 @@ public abstract class BEBScenarioGen {
                     }
                 };
 
-                killobserver.start();
-                servers.startAfterTerminationOf(1000, killobserver);
+                //killobserver.start();
+                servers.start();
                 killer.startAfterTerminationOf(1000, servers);
-                terminateAfterTerminationOf(10000, killobserver);
+                terminateAfterTerminationOf(10000, servers);
             }
         };
     }
