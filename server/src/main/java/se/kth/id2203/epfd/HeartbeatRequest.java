@@ -11,4 +11,19 @@ public class HeartbeatRequest implements KompicsEvent, Serializable {
     public HeartbeatRequest(int seq) {
         this.seq = seq;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HeartbeatRequest that = (HeartbeatRequest) o;
+
+        return seq == that.seq;
+    }
+
+    @Override
+    public int hashCode() {
+        return seq;
+    }
 }

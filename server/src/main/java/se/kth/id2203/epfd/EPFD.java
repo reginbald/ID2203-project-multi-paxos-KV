@@ -115,14 +115,14 @@ public class EPFD extends ComponentDefinition {
         @Override
         public void handle(HeartbeatReply heartbeatReply, PL_Deliver message) {
             //logger.info("Received hbReply from {} ", message.src);
-            /*if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
+            if(heartbeatReply.seq == seqnum || suspected.contains(message.src)) {
                 logger.info("Adding {} to alive", message.src);
                 alive.add(message.src);
 
-            }*/
+            }
             // TODO: why u not work mr if statement ?
             //logger.info("Adding {} to alive", message.src);
-            alive.add(message.src);
+            //alive.add(message.src);
         }
     };
     {

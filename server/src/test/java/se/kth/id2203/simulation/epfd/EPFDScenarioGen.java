@@ -65,92 +65,14 @@ public abstract class EPFDScenarioGen {
         }
     };
 
-    static Operation startObserverOp = new Operation<StartNodeEvent>() {
-        @Override
-        public StartNodeEvent generate() {
-            return new StartNodeEvent() {
-                NetAddress selfAdr;
-
-                {
-                    try {
-                        selfAdr = new NetAddress(InetAddress.getByName("0.0.0.0"), 0);
-                    } catch (UnknownHostException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-
-                @Override
-                public Map<String, Object> initConfigUpdate() {
-                    HashMap<String, Object> config = new HashMap<>();
-                    config.put("pingpong.simulation.checktimeout", 2000);
-                    return config;
-                }
-
-                @Override
-                public Address getNodeAddress() {
-                    return selfAdr;
-                }
-
-                @Override
-                public Class getComponentDefinition() {
-                    return EPFDObserver.class;
-                }
-
-                @Override
-                public Init getComponentInit() {
-                    return new EPFDObserver.Init(6);
-                }
-            };
-        }
-    };
-
-    static Operation startKillObserverOp = new Operation<StartNodeEvent>() {
-        @Override
-        public StartNodeEvent generate() {
-            return new StartNodeEvent() {
-                NetAddress selfAdr;
-
-                {
-                    try {
-                        selfAdr = new NetAddress(InetAddress.getByName("0.0.0.0"), 0);
-                    } catch (UnknownHostException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-
-                @Override
-                public Map<String, Object> initConfigUpdate() {
-                    HashMap<String, Object> config = new HashMap<>();
-                    config.put("pingpong.simulation.checktimeout", 2000);
-                    return config;
-                }
-
-                @Override
-                public Address getNodeAddress() {
-                    return selfAdr;
-                }
-
-                @Override
-                public Class getComponentDefinition() {
-                    return EPFDObserver.class;
-                }
-
-                @Override
-                public Init getComponentInit() {
-                    return new EPFDObserver.Init(7);
-                }
-            };
-        }
-    };
-
     static Operation1 killOp = new Operation1<KillNodeEvent, Integer>() {
         @Override
         public KillNodeEvent generate(final Integer self) {
             return new KillNodeEvent() {
-                NetAddress selfAdr;
+                NetAddress selfAddress;
                 {
                     try {
-                        selfAdr = new NetAddress(InetAddress.getByName("192.168.0." + self), 45678);
+                        selfAddress = new NetAddress(InetAddress.getByName("192.168.0." + self), 45678);
                     } catch (UnknownHostException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -158,12 +80,12 @@ public abstract class EPFDScenarioGen {
 
                 @Override
                 public Address getNodeAddress() {
-                    return selfAdr;
+                    return selfAddress;
                 }
 
                 @Override
                 public String toString() {
-                    return "Kill<" + selfAdr.toString() + ">";
+                    return "Kill<" + selfAddress.toString() + ">";
                 }
             };
         }
@@ -174,12 +96,6 @@ public abstract class EPFDScenarioGen {
         return new SimulationScenario() {
             {
 
-                SimulationScenario.StochasticProcess observer = new SimulationScenario.StochasticProcess() {
-                    {
-                        raise(1, startObserverOp);
-                    }
-                };
-
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
                         eventInterArrivalTime(constant(1000));
@@ -187,9 +103,9 @@ public abstract class EPFDScenarioGen {
                     }
                 };
 
-                observer.start();
-                servers.startAfterTerminationOf(0, observer);
-                terminateAfterTerminationOf(100000, observer);
+                //observer.start();
+                servers.start();
+                terminateAfterTerminationOf(100000, servers);
             }
         };
     }
@@ -198,12 +114,6 @@ public abstract class EPFDScenarioGen {
 
         return new SimulationScenario() {
             {
-
-                SimulationScenario.StochasticProcess killobserver = new SimulationScenario.StochasticProcess() {
-                    {
-                        raise(1, startKillObserverOp);
-                    }
-                };
 
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
@@ -219,13 +129,9 @@ public abstract class EPFDScenarioGen {
                     }
                 };
 
-                killobserver.start();
-                servers.startAfterTerminationOf(1000, killobserver);
+                servers.start();
                 killer.startAfterTerminationOf(0, servers);
                 terminateAfterTerminationOf(1000*10000, servers);
-
-
-
             }
         };
     }
