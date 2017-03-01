@@ -2,6 +2,7 @@ package se.kth.id2203.simulation.epfd;
 
 import se.kth.id2203.bootstrapping.Bootstrapping;
 import se.kth.id2203.epfd.EPFD;
+import se.kth.id2203.network.PerfectLink;
 import se.kth.id2203.network.PerfectLinkComponent;
 import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
@@ -19,8 +20,10 @@ public class EPFDParent extends ComponentDefinition {
     {
         connect(epfdClient.getPositive(Bootstrapping.class), epfd.getNegative(Bootstrapping.class), Channel.TWO_WAY);
         connect(epfd.getPositive(Bootstrapping.class), epfdClient.getNegative(Bootstrapping.class), Channel.TWO_WAY);
+        connect(perfectLink.getPositive(PerfectLink.class), epfd.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
         connect(net, epfdClient.getNegative(Network.class), Channel.TWO_WAY);
+
         connect(net, perfectLink.getNegative(Network.class), Channel.TWO_WAY);
         connect(timer, epfd.getNegative(Timer.class), Channel.TWO_WAY);
     }

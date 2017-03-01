@@ -59,9 +59,9 @@ public class EPFD extends ComponentDefinition {
         public void handle(AllNodes all) {
             logger.info("EFPD Init: {}", all.nodes);
             seqnum = 0;
-            topology = all.nodes;
+            topology = new HashSet<>(all.nodes);
             topology.remove(self);
-            alive = topology; // assume everyone is alive in the beginning
+            alive =  new HashSet<>(topology); // assume everyone is alive in the beginning
             suspected = new HashSet<>();
             startTimer(period);
         }

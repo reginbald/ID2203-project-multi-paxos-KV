@@ -9,6 +9,7 @@ import se.sics.kompics.Handler;
 import se.sics.kompics.Negative;
 import se.sics.kompics.Positive;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class BasicBroadcast extends ComponentDefinition {
@@ -27,7 +28,7 @@ public class BasicBroadcast extends ComponentDefinition {
         @Override
         public void handle(Partition partition) {
             LOG.info("Init: {}", partition.nodes);
-            topology = partition.nodes;
+            topology = new HashSet<>(partition.nodes);
         }
     };
 

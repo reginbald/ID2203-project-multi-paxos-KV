@@ -51,7 +51,7 @@ public class LookupTable implements NodeAssignment {
 
         int partition = keyHash % partitions.keySet().size();
 
-        return partitions.get(partition);
+        return new HashSet<>(partitions.get(partition));
     }
 
     public Collection<NetAddress> lookup(String key, Set<NetAddress> suspects) {
@@ -69,7 +69,7 @@ public class LookupTable implements NodeAssignment {
             Set<NetAddress> addresses = partitions.get(key);
             for (NetAddress address : addresses) {
                 if(self.equals(address)){
-                    return addresses;
+                    return new HashSet<>(addresses);
                 }
             }
         }
@@ -113,7 +113,7 @@ public class LookupTable implements NodeAssignment {
                 if(self.equals(address)){
                     HashSet<NetAddress> out = new HashSet<>(addresses);
                     out.removeAll(suspects);
-                    return out;
+                    return new HashSet<>(out);
                 }
             }
         }

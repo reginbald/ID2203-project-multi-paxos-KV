@@ -32,22 +32,20 @@ public class ScenarioEPFDClient extends ComponentDefinition {
     private final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
     private final SimulationResultMap res = SimulationResultSingleton.getInstance();
 
-    private  Set<NetAddress> current_nodes;
-
     protected final Handler<Start> startHandler = new Handler<Start>() {
         @Override
         public void handle(Start event) {
-            GlobalView gv = config().getValue("simulation.globalview", GlobalView.class);
+        GlobalView gv = config().getValue("simulation.globalview", GlobalView.class);
 
-            Set<NetAddress> topology = new HashSet<>();
-            for (Address a : gv.getAliveNodes().values()) {
-                topology.add(new NetAddress(a.getIp(), a.getPort()));
-            }
-            current_nodes = topology;
-            trigger(new AllNodes(topology), boot2);
+        Set<NetAddress> topology = new HashSet<>();
+        for (Address a : gv.getAliveNodes().values()) {
+            topology.add(new NetAddress(a.getIp(), a.getPort()));
+        }
+        if(topology.size() == 5) {
             for (NetAddress addr : topology) {
                 trigger(new Message(null, addr, new AllNodes(topology)), net);
             }
+        }
         }
     };
 
@@ -63,8 +61,7 @@ public class ScenarioEPFDClient extends ComponentDefinition {
         @Override
         public void handle(AllNodes nodes, Message context) {
             LOG.debug("Got nodes: {}", nodes);
-            if(current_nodes.size() < nodes.nodes.size())
-                trigger(nodes, boot2);
+        trigger(nodes, boot2);
         }
     };
 

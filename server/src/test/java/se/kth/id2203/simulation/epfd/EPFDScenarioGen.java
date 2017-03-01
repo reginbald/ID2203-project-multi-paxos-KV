@@ -130,7 +130,7 @@ public abstract class EPFDScenarioGen {
                 };
 
                 servers.start();
-                killer.startAfterTerminationOf(0, servers);
+                killer.startAfterTerminationOf(2000, servers);
                 terminateAfterTerminationOf(1000*10000, servers);
             }
         };
