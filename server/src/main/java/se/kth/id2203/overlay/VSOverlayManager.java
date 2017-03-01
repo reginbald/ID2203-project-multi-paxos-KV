@@ -119,8 +119,7 @@ public class VSOverlayManager extends ComponentDefinition {
                 Operation op = (Operation) content.msg;
                 trigger(new Message(self, context.getSource(), new OpResponse(op.id, OpResponse.Code.ERROR, "")), net);
             } else {
-                NetAddress target = Iterables.get(partition, 0);
-                //NetAddress target = J6.randomElement(partition);
+                NetAddress target = SelectLeader(partition);
                 LOG.info("Forwarding message for key {} to {}", content.key, target);
                 trigger(new Message(context.getSource(), target, content.msg), net);
             }
@@ -131,8 +130,7 @@ public class VSOverlayManager extends ComponentDefinition {
         @Override
         public void handle(RouteMsg event) {
         Collection<NetAddress> partition = lut.lookup(event.key, suspects);
-        NetAddress target = Iterables.get(partition, 0);
-        //NetAddress target = J6.randomElement(partition);
+        NetAddress target = SelectLeader(partition);
         LOG.info("Routing message for key {} to {}", event.key, target);
         trigger(new Message(self, target, event.msg), net);
         }
@@ -150,6 +148,23 @@ public class VSOverlayManager extends ComponentDefinition {
         }
         }
     };
+
+    private NetAddress SelectLeader(Collection<NetAddress> partition){
+
+        NetAddress out = null;
+        int rank = 0;
+        for (NetAddress addr : partition) {
+            if (rank < rank(addr)){
+                rank = rank(addr);
+                out = addr;
+            }
+        }
+        return out;
+    }
+
+    private int rank(NetAddress adr){
+        return Math.abs(adr.getIp().hashCode() + adr.getPort());
+    }
 
     {
         subscribe(initialAssignmentHandler, boot);

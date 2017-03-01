@@ -221,7 +221,7 @@ public class MultiPaxos extends ComponentDefinition {
     }
 
     private int rank(NetAddress adr){
-        return Math.abs(self.getIp().hashCode() + self.getPort());
+        return Math.abs(adr.getIp().hashCode() + adr.getPort());
     }
 
     static class Tuple {
