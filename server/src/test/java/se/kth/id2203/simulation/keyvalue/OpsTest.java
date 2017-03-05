@@ -110,15 +110,4 @@ public class OpsTest {
         Assert.assertEquals("Status: OK Data: 1", res.get("10", String.class));
     }
 
-    @Test
-    public void AtomicityAndLinerizabilityTest() {
-
-    }
-
-    @Test
-    public void TerminationTest() {
-
-    }
-
-
 }

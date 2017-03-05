@@ -51,7 +51,6 @@ public class KVService extends ComponentDefinition {
     final NetAddress self = config().getValue("id2203.project.address", NetAddress.class);
 
     private HashMap<Object,Object> store = new HashMap<>();
-    private List<KompicsEvent> proposed = new ArrayList<>();
 
     //******* Handlers ******
     protected final ClassMatchedHandler<GetOperation, Message> opHandler = new ClassMatchedHandler<GetOperation, Message>() {
@@ -60,10 +59,7 @@ public class KVService extends ComponentDefinition {
         public void handle(GetOperation content, Message context) {
             LOG.info("GET request - Key: {}!", content.key);
 
-            KompicsEvent item = new AR_Read_Request(content.id, content.key, context.getSource());
-            proposed.add(item);
-
-            trigger(new Propose(item), asc);
+            trigger(new Propose(new AR_Read_Request(content.id, content.key, context.getSource())), asc);
             //trigger(new AR_Read_Request(content.id, content.key, context.getSource()), atomicRegister);
         }
 
@@ -74,10 +70,8 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(PutOperation content, Message context) {
             LOG.info("PUT request - Key: {} and Value: {}!", content.key, content.value);
-            KompicsEvent item = new AR_Write_Request(content.id, content.key, context.getSource(), content.value);
-            proposed.add(item);
 
-            trigger(new Propose(item), asc);
+            trigger(new Propose(new AR_Write_Request(content.id, content.key, context.getSource(), content.value)), asc);
             //trigger(new AR_Write_Request(content.id, content.key, context.getSource(), content.value), atomicRegister);
         }
 
@@ -88,10 +82,8 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(CasOperation content, Message context) {
             LOG.info("CAS request - Key: {}, ReferenceValue: {} and NewValue: {}!", content.key, content.referenceValue, content.newValue);
-            KompicsEvent item = new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue);
-            proposed.add(item);
 
-            trigger(new Propose(item), asc);
+            trigger(new Propose(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue)), asc);
             //trigger(new AR_CAS_Request(content.id, context.getSource(), content.key, content.referenceValue, content.newValue), atomicRegister);
         }
 
@@ -104,7 +96,6 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(AR_Read_Request get, DECIDE_RESPONSE response) {
             Object value = store.get(get.request_key);
-            proposed.remove(get);
 
             if (value != null){
                 LOG.info("Value: {}!", value);
@@ -123,7 +114,6 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(AR_Write_Request put, DECIDE_RESPONSE response) {
             store.put(put.request_key, put.value);
-            proposed.remove(put);
             trigger(new Message(self, put.request_source, new OpResponse(put.request_id, Code.OK, "")), net);
         }
 
@@ -135,7 +125,6 @@ public class KVService extends ComponentDefinition {
         @Override
         public void handle(AR_CAS_Request cas, DECIDE_RESPONSE response) {
             Object value = store.get(cas.key);
-            proposed.remove(cas);
             if (value == null){
                 trigger(new Message(self, cas.request_source, new OpResponse(cas.request_id, Code.NOT_FOUND, "")), net);
             } else {
