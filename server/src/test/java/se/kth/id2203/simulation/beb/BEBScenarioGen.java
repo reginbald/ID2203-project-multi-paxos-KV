@@ -62,84 +62,6 @@ public abstract class BEBScenarioGen {
         }
     };
 
-    static Operation startObserverOp = new Operation<StartNodeEvent>() {
-        @Override
-        public StartNodeEvent generate() {
-            return new StartNodeEvent() {
-                NetAddress selfAdr;
-
-                {
-                    try {
-                        selfAdr = new NetAddress(InetAddress.getByName("0.0.0.0"), 0);
-                    } catch (UnknownHostException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-
-                @Override
-                public Map<String, Object> initConfigUpdate() {
-                    HashMap<String, Object> config = new HashMap<>();
-                    config.put("pingpong.simulation.checktimeout", 2000);
-                    return config;
-                }
-
-                @Override
-                public Address getNodeAddress() {
-                    return selfAdr;
-                }
-
-                @Override
-                public Class getComponentDefinition() {
-                    return BEBObserver.class;
-                }
-
-                @Override
-                public Init getComponentInit() {
-                    return new BEBObserver.Init(6);
-                }
-            };
-        }
-    };
-
-    static Operation startKillObserverOp = new Operation<StartNodeEvent>() {
-        @Override
-        public StartNodeEvent generate() {
-            return new StartNodeEvent() {
-                NetAddress selfAdr;
-
-                {
-                    try {
-                        selfAdr = new NetAddress(InetAddress.getByName("0.0.0.0"), 0);
-                    } catch (UnknownHostException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-
-                @Override
-                public Map<String, Object> initConfigUpdate() {
-                    HashMap<String, Object> config = new HashMap<>();
-                    config.put("pingpong.simulation.checktimeout", 2000);
-                    return config;
-                }
-
-                @Override
-                public Address getNodeAddress() {
-                    return selfAdr;
-                }
-
-                @Override
-                public Class getComponentDefinition() {
-                    return BEBObserver.class;
-                }
-
-                @Override
-                public Init getComponentInit() {
-                    return new BEBObserver.Init(7);
-                }
-            };
-        }
-    };
-
     static Operation1 killOp = new Operation1<KillNodeEvent, Integer>() {
         @Override
         public KillNodeEvent generate(final Integer self) {
@@ -171,12 +93,6 @@ public abstract class BEBScenarioGen {
         return new SimulationScenario() {
             {
 
-                //SimulationScenario.StochasticProcess observer = new SimulationScenario.StochasticProcess() {
-                //    {
-                //        raise(1, startObserverOp);
-                //    }
-                //};
-
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
                         eventInterArrivalTime(constant(1000));
@@ -184,7 +100,6 @@ public abstract class BEBScenarioGen {
                     }
                 };
 
-                //observer.start();
                 servers.start();
                 terminateAfterTerminationOf(10000, servers);
             }
@@ -195,12 +110,6 @@ public abstract class BEBScenarioGen {
 
         return new SimulationScenario() {
             {
-
-                //SimulationScenario.StochasticProcess killobserver = new SimulationScenario.StochasticProcess() {
-                //    {
-                //        raise(1, startKillObserverOp);
-                //    }
-                //};
 
                 final SimulationScenario.StochasticProcess servers = new SimulationScenario.StochasticProcess() {
                     {
@@ -216,7 +125,6 @@ public abstract class BEBScenarioGen {
                     }
                 };
 
-                //killobserver.start();
                 servers.start();
                 killer.startAfterTerminationOf(1000, servers);
                 terminateAfterTerminationOf(10000, servers);

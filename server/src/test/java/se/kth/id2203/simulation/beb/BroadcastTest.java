@@ -59,14 +59,10 @@ public class BroadcastTest extends ComponentDefinition {
         System.out.println("node4 got: " + node4_got);
         System.out.println("node5 got: " + node5_got);
 
-        junit.framework.Assert.assertTrue(node2_got > node2_sent + node3_sent + node4_sent + node5_sent
-                && node2_got <= node1_sent + node2_sent + node3_sent + node4_sent + node5_sent );
-        junit.framework.Assert.assertTrue(node3_got >node2_sent + node3_sent + node4_sent + node5_sent
-                && node3_got <= node1_sent + node2_sent + node3_sent + node4_sent + node5_sent );
-        junit.framework.Assert.assertTrue(node4_got > node2_sent + node3_sent + node4_sent + node5_sent
-                && node4_got <= node1_sent + node2_sent + node3_sent + node4_sent + node5_sent );
-        junit.framework.Assert.assertTrue(node5_got > node2_sent + node3_sent + node4_sent + node5_sent
-                && node5_got <= node1_sent + node2_sent + node3_sent + node4_sent + node5_sent );
+        junit.framework.Assert.assertTrue(node2_got == node3_got);
+        junit.framework.Assert.assertTrue(node2_got == node4_got);
+        junit.framework.Assert.assertTrue(node2_got == node5_got);
+
     }
 
 }

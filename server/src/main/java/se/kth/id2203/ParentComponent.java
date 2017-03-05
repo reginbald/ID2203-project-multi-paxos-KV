@@ -82,8 +82,6 @@ public class ParentComponent
 
         //PAXOS
         connect(overlay.getPositive(Bootstrapping.class), paxos.getNegative(Bootstrapping.class), Channel.TWO_WAY);
-        //connect(epfd.getPositive(Bootstrapping.class), riwcmc.getNegative(Bootstrapping.class), Channel.TWO_WAY);
-        //connect(basicb.getPositive(BestEffortBroadcast.class), riwcmc.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
         connect(paxos.getPositive(AbortableSequenceConsensus.class), kv.getNegative(AbortableSequenceConsensus.class), Channel.TWO_WAY);
         connect(perfectLink.getPositive(PerfectLink.class), paxos.getNegative(PerfectLink.class), Channel.TWO_WAY);
 
