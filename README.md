@@ -1,7 +1,14 @@
-# ID2203 Project 2017 Starter Code
+# ID2203 Project
 
-This project contains some code to get you started with the project.
-You are encourage to create your own forks and work on them, modifying everything and anything as you desire it.
+This repository contains code for the implementation of a distributed in memory key-value store and is apart of the final project in the course ID2203 Distributed Systems, Advanced Course. 
+The project makes use of Kompics which is a programming model for distributed systems that implements protocols as event-driven components connected by channels
+
+## System Structure
+Our system is made up of nodes, a node is essentially a single instance of a server. Each node in the system is assigned a partition. Nodes within a partition are replicated and are responsible for a partition of the key space. Within a partition a leader node proposes an operation to the other nodes using the multi-paxos algorithm, if an operation reaches consensus all participating nodes perform the operation.
+
+A Client is able to connect to any node in the system and start sending commands, a node that is not the designated leader for a partition will forward the request to the partition leader. Nodes receiving messages intended for another partition forward the messages to the leader of the corresponding partition. Figure 1 shows how the system looks like when we have 2 partitions and the replication degree is set to δ = 3.
+
+Each node is composed of various components with unique responsibilities. Each component is connected via ports and channels which transmit messages between the components and the outside world. These messages trigger event handlers who process the messages. Figure 2 depicts the inner structure of a single node in our system and how the components are connected.
 
 ## Overview
 
@@ -57,9 +64,4 @@ java -jar target/project17-client-1.0-SNAPSHOT-shaded.jar -p 56787 -b <bsip>:<bs
 Again, make sure not to double allocate ports on the same machine.
 
 The client will attempt to contact the bootstrap server and give you a small command promt if successful. Type `help` to see the available commands.
-
-## Issues
-If you find a bug please create an issue on git, or create a pull request with a fix.
-
-If there are other questions, try to talk to the other students and only if that doesn't help write me an email at <lkroll@kth.se>. Or, of course, ask at a lab session.
 
